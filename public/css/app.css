@@ -141,7 +141,7 @@ body {
     opacity: 0.8;
 }
 
-/* Hardcoded menus (Business Matching, About BINA) - force two lines when more than one word */
+/* Hardcoded menus (Gallery, About BINA) - force two lines when more than one word */
 .nav-menu li.nav-text-item {
     width: 5rem;
     min-width: 5rem;
