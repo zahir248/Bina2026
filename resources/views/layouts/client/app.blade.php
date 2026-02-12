@@ -69,11 +69,11 @@
                             <div class="dropdown">
                                 <a href="#" class="auth-btn auth-btn-account">Account <span class="dropdown-arrow">▼</span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Profile</a></li>
+                                    <li><a href="#" class="dropdown-menu-item">Profile</a></li>
                                     <li>
-                                        <form method="POST" action="{{ route('logout') }}" style="display: inline; margin: 0; padding: 0;">
+                                        <form method="POST" action="{{ route('logout') }}" style="display: block; margin: 0; padding: 0; width: 100%;">
                                             @csrf
-                                            <button type="submit" class="dropdown-logout-btn">Log Out</button>
+                                            <button type="submit" class="dropdown-menu-item dropdown-logout-btn">Log Out</button>
                                         </form>
                                     </li>
                                 </ul>
