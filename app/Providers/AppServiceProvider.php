@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('layouts.client.app', function ($view) {
             $categories = EventCategory::where('status', 'active')
+                ->whereHas('events', fn ($q) => $q->where('status', 'active'))
                 ->orderBy('name', 'asc')
                 ->with(['events' => function ($q) {
                     $q->where('status', 'active')->orderBy('start_datetime')->limit(1);
