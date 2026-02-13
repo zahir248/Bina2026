@@ -29,6 +29,10 @@ Route::get('/', function () {
     return view('client.home');
 })->name('home');
 
+Route::get('/gallery', function () {
+    return view('client.gallery');
+})->name('gallery');
+
 Route::get('/event/{slug}', [ClientEventController::class, 'show'])->name('events.show');
 
 // Cart Routes (specific paths before /cart/{id} to avoid 404)

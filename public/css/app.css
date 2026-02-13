@@ -812,6 +812,157 @@ body {
     background: var(--primary-color);
 }
 
+/* Plain hero (single background image, no carousel) - same dark effect as event show hero */
+.hero-plain {
+    margin-top: 60px;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--bg-lavender, #f8f6fc);
+}
+
+.hero-plain::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&h=640&fit=crop&q=90');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.55);
+}
+
+.hero-plain::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+}
+
+.hero-plain-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--text-white);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .hero-plain {
+        min-height: 280px;
+    }
+    .hero-plain-title {
+        font-size: 2.25rem;
+    }
+}
+
+/* Gallery Section */
+.gallery-section {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.gallery-heading {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    margin: 0 0 0.75rem;
+    line-height: 1.15;
+}
+
+.gallery-lead {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--text-dark);
+    text-align: center;
+    margin: 0 0 2.5rem;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gallery-item {
+    margin: 0;
+}
+
+.gallery-item-frame {
+    background: var(--text-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.gallery-item-frame:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.gallery-item-frame img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+    vertical-align: middle;
+}
+
+@media (max-width: 992px) {
+    .gallery-heading {
+        font-size: 2rem;
+    }
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .gallery-section {
+        padding: 2rem 0 3rem;
+    }
+    .gallery-heading {
+        font-size: 1.75rem;
+    }
+    .gallery-lead {
+        font-size: 1rem;
+    }
+    .gallery-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+    .gallery-item-frame img {
+        height: 220px;
+    }
+}
+
 /* Countdown Section */
 .countdown-section {
     background: var(--primary-color);

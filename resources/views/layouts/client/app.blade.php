@@ -48,7 +48,7 @@
                         @endforeach
                     </ul>
                 </li>
-                <li class="nav-text-item"><a class="nav-text-link" href="#gallery">Gallery</a></li>
+                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('gallery') }}">Gallery</a></li>
                 <li class="nav-text-item"><a class="nav-text-link" href="#about-bina">About BINA</a></li>
                 @auth
                 <li class="nav-icon">
