@@ -33,6 +33,10 @@ Route::get('/gallery', function () {
     return view('client.gallery');
 })->name('gallery');
 
+Route::get('/about-bina', function () {
+    return view('client.about');
+})->name('about-bina');
+
 Route::get('/event/{slug}', [ClientEventController::class, 'show'])->name('events.show');
 
 // Cart Routes (specific paths before /cart/{id} to avoid 404)

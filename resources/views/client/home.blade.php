@@ -103,7 +103,7 @@
                         </article>
                     </div>
                         <div class="bina-intro-cta">
-                            <a href="{{ url('/#about-bina') }}" class="bina-intro-read-more">
+                            <a href="{{ route('about-bina') }}" class="bina-intro-read-more">
                                 <span>Read more</span>
                                 <i class="bi bi-arrow-right" aria-hidden="true"></i>
                             </a>

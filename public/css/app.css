@@ -874,6 +874,838 @@ body {
     }
 }
 
+/* About BINA Page */
+.about-bina-content {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.about-bina-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: stretch;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-bina-text {
+    min-width: 0;
+    text-align: right;
+}
+
+.about-bina-logo-block {
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.about-bina-logo-img {
+    width: 11ch;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.about-bina-year {
+    display: inline-block;
+    vertical-align: middle;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-left: 0.5rem;
+}
+
+.about-bina-tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin: 0.35rem 0 0;
+}
+
+.about-bina-heading {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1.25rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: left;
+}
+
+.about-bina-paragraph {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--text-dark);
+    margin: 0 0 1.25rem;
+    text-align: justify;
+}
+
+.about-bina-subheading {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 1rem 0 0.5rem;
+    text-align: left;
+}
+
+.about-bina-image-wrap {
+    min-height: 0;
+    align-self: stretch;
+    display: flex;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.about-bina-image {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.about-bina-image-wrap:hover .about-bina-image {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+/* Summary of BINA 2025 - two platforms */
+.about-bina-summary {
+    margin-top: 4rem;
+    padding-top: 3rem;
+}
+
+.about-bina-summary-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 0.5rem;
+    line-height: 1.2;
+}
+
+.about-bina-summary-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-dark);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 2.5rem;
+}
+
+.about-bina-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-bina-summary-card {
+    padding: 1.5rem 1.25rem;
+    display: grid;
+    grid-template-rows: 72px 1fr;
+    gap: 1.25rem;
+    align-items: start;
+    background: var(--text-white);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 152, 0, 0.18);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.25s ease;
+}
+
+.about-bina-summary-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 152, 0, 0.28);
+}
+
+.about-bina-summary-card-logo {
+    width: 100%;
+    max-width: 280px;
+    height: 100%;
+    max-height: 72px;
+    object-fit: contain;
+    object-position: center top;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.about-bina-summary-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.about-bina-summary-card-title--orange {
+    color: var(--primary-orange);
+}
+
+.about-bina-summary-card-title--teal {
+    color: #0d9488;
+}
+
+.about-bina-summary-card-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin: 0 0 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.about-bina-summary-card-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-dark);
+    margin: 0;
+    text-align: center;
+}
+
+/* Three Key Showcase */
+.about-bina-showcase {
+    margin-top: 4rem;
+    padding-top: 3rem;
+}
+
+.about-bina-showcase-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 2.5rem;
+}
+
+.about-bina-showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-bina-showcase-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: var(--text-white);
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 152, 0, 0.18);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.25s ease;
+}
+
+.about-bina-showcase-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 152, 0, 0.28);
+}
+
+.about-bina-showcase-logo-box {
+    background: rgba(250, 238, 221, 0.5);
+    border-radius: 12px;
+    padding: 1.25rem 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    /* 72px content height + vertical padding = same visual size as summary logos */
+    height: calc(72px + 2 * 1.25rem);
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.about-bina-showcase-logo-img {
+    width: 100%;
+    max-width: 280px;
+    height: 100%;
+    max-height: 72px;
+    object-fit: contain;
+    object-position: center top;
+    display: block;
+}
+
+.about-bina-showcase-card-heading {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1.35;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+
+.about-bina-showcase-card-tagline {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-light);
+    margin: 0.35rem 0 0;
+    text-align: center;
+}
+
+.about-bina-showcase-card-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-dark);
+    margin: 0;
+    text-align: center;
+}
+
+/* MODULAR ASIA - Transforming ASEAN's Construction Landscape */
+.about-modular-asia {
+    margin-top: 4rem;
+    padding-top: 3rem;
+}
+
+.about-modular-asia-panel {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.about-modular-asia-panel-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.about-modular-asia-panel-right {
+    display: flex;
+    flex-direction: column;
+}
+
+.about-modular-asia-logo {
+    max-width: 280px;
+    max-height: 72px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 1.5rem;
+}
+
+.about-modular-asia-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.about-modular-asia-paragraph {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-dark);
+    margin: 0 0 1rem;
+    text-align: justify;
+}
+
+.about-modular-asia-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+.about-modular-asia-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.about-modular-asia-showcase-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    background: var(--bg-light-grey);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.about-modular-asia-showcase-item:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.about-modular-asia-showcase-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.about-modular-asia-video-link {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.about-modular-asia-play-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: var(--primary-orange);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.about-modular-asia-play-icon::after {
+    content: '';
+    position: absolute;
+    left: 54%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-width: 10px 0 10px 16px;
+    border-style: solid;
+    border-color: transparent transparent transparent var(--text-white);
+    margin-left: 2px;
+}
+
+/* Facility Management section - under MODULAR ASIA */
+.about-facility-section {
+    margin-top: 4rem;
+    padding-top: 3rem;
+}
+
+.about-facility-panel {
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.about-facility-panel-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.about-facility-paragraph {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-dark);
+    margin: 0 0 1rem;
+    text-align: justify;
+}
+
+.about-facility-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+.about-facility-panel-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.about-facility-logo {
+    max-width: 280px;
+    max-height: 72px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 1.5rem;
+}
+
+.about-facility-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.about-facility-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.about-facility-showcase-item {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    background: var(--bg-light-grey);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.about-facility-showcase-item:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.about-facility-showcase-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.about-facility-video-link {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.about-facility-play-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: var(--primary-orange);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.about-facility-play-icon::after {
+    content: '';
+    position: absolute;
+    left: 54%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-width: 10px 0 10px 16px;
+    border-style: solid;
+    border-color: transparent transparent transparent var(--text-white);
+    margin-left: 2px;
+}
+
+/* Our Audiences */
+.about-audiences {
+    margin-top: 4rem;
+    padding-top: 3rem;
+}
+
+.about-audiences-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 2.5rem;
+    line-height: 1.2;
+}
+
+.about-audiences-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-audiences-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    background: var(--text-white);
+    border-radius: 12px;
+    padding: 1.5rem 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 152, 0, 0.18);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.25s ease;
+}
+
+.about-audiences-item:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 152, 0, 0.28);
+}
+
+.about-audiences-item-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.about-audiences-item-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.about-audiences-item:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    max-width: calc(50% - 1rem);
+}
+
+/* Unveil the Extraordinary at BINA 2025 */
+.about-unveil {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    text-align: center;
+}
+
+.about-unveil-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 2.5rem;
+    line-height: 1.25;
+}
+
+.about-unveil-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-unveil-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    background: var(--text-white);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 152, 0, 0.18);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.25s ease;
+}
+
+.about-unveil-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 152, 0, 0.28);
+}
+
+.about-unveil-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    background: var(--primary-orange);
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.about-unveil-icon svg {
+    width: 32px;
+    height: 32px;
+}
+
+.about-unveil-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    line-height: 1.3;
+}
+
+/* CCD and CPD Points Applied */
+.about-ccd-cpd {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    text-align: center;
+}
+
+.about-ccd-cpd-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0 0 2.5rem;
+    line-height: 1.2;
+}
+
+.about-ccd-cpd-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-ccd-cpd-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    background: var(--text-white);
+    border-radius: 12px;
+    padding: 2rem 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 152, 0, 0.18);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.25s ease;
+}
+
+.about-ccd-cpd-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 152, 0, 0.28);
+}
+
+.about-ccd-cpd-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    background: var(--primary-orange);
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.about-ccd-cpd-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.about-ccd-cpd-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    text-align: center;
+}
+
+@media (max-width: 992px) {
+    .about-bina-showcase-grid {
+        grid-template-columns: 1fr;
+    }
+    .about-bina-summary-grid {
+        grid-template-columns: 1fr;
+    }
+    .about-modular-asia-showcase {
+        grid-template-columns: 1fr;
+    }
+    .about-modular-asia-panel {
+        grid-template-columns: 1fr;
+    }
+    .about-modular-asia-title {
+        font-size: 1.125rem;
+    }
+    .about-facility-panel {
+        grid-template-columns: 1fr;
+    }
+    .about-facility-showcase {
+        grid-template-columns: 1fr;
+    }
+    .about-facility-title {
+        font-size: 1.125rem;
+    }
+    .about-audiences-grid {
+        grid-template-columns: 1fr;
+    }
+    .about-audiences-item:last-child {
+        max-width: none;
+    }
+    .about-unveil-cards {
+        grid-template-columns: 1fr;
+    }
+    .about-ccd-cpd-grid {
+        grid-template-columns: 1fr;
+    }
+    .about-bina-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .about-bina-image-wrap {
+        max-width: 400px;
+        margin: 0 auto;
+        min-height: 320px;
+    }
+    .about-bina-image {
+        min-height: 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-bina-content {
+        padding: 2rem 0 3rem;
+    }
+    .about-bina-heading {
+        font-size: 1.5rem;
+    }
+    .about-bina-paragraph {
+        font-size: 0.9375rem;
+    }
+}
+
 /* Gallery Section */
 .gallery-section {
     padding: 3rem 0 4rem;
