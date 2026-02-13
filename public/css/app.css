@@ -172,6 +172,7 @@ body {
 .nav-category-group {
     display: flex;
     align-items: center;
+    margin-left: -1.25rem;
 }
 
 .nav-category-list {

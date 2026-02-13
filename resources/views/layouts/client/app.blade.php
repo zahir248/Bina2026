@@ -41,6 +41,9 @@
                 </a>
             </div>
             <ul class="nav-menu">
+                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('home') }}">Home</a></li>
+                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('about-bina') }}">About<br>BINA</a></li>
+                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('gallery') }}">Gallery</a></li>
                 <li class="nav-category-group">
                     <ul class="nav-category-list">
                         @foreach($eventCategories ?? [] as $category)
@@ -48,8 +51,6 @@
                         @endforeach
                     </ul>
                 </li>
-                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('gallery') }}">Gallery</a></li>
-                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('about-bina') }}">About BINA</a></li>
                 @auth
                 <li class="nav-icon">
                     <a href="{{ route('cart.index') }}" aria-label="Cart" class="cart-toggle">
