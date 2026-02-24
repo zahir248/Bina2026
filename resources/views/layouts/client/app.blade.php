@@ -101,7 +101,7 @@
         @yield('content')
     </main>
 
-    @unless(request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('events.show'))
+    @unless(request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('profile.index') || request()->routeIs('events.show'))
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
