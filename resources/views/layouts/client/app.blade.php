@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
     @stack('styles')
 </head>
-<body class="@if(request()->routeIs('cart.index')) cart-page @endif">
+<body class="@if(request()->routeIs('cart.index')) cart-page @endif @if(request()->routeIs('checkout.index')) checkout-page @endif @if(request()->routeIs('profile.index')) profile-page @endif">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
@@ -40,8 +40,12 @@
                     <img src="{{ asset('images/bina-logo.png') }}" alt="BINA Logo" class="nav-logo">
                 </a>
             </div>
+            @php
+                $isSimplifiedNav = request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('profile.index');
+            @endphp
             <ul class="nav-menu">
                 <li class="nav-text-item"><a class="nav-text-link" href="{{ route('home') }}">Home</a></li>
+                @unless($isSimplifiedNav)
                 <li class="nav-text-item"><a class="nav-text-link" href="{{ route('about-bina') }}">About<br>BINA</a></li>
                 <li class="nav-text-item"><a class="nav-text-link" href="{{ route('gallery') }}">Gallery</a></li>
                 <li class="nav-category-group">
@@ -51,6 +55,7 @@
                         @endforeach
                     </ul>
                 </li>
+                @endunless
                 @auth
                 <li class="nav-icon">
                     <a href="{{ route('cart.index') }}" aria-label="Cart" class="cart-toggle">
@@ -70,7 +75,7 @@
                             <div class="dropdown">
                                 <a href="#" class="auth-btn auth-btn-account">Account <span class="dropdown-arrow">▼</span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#" class="dropdown-menu-item">Profile</a></li>
+                                    <li><a href="{{ route('profile.index') }}" class="dropdown-menu-item">Profile</a></li>
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}" style="display: block; margin: 0; padding: 0; width: 100%;">
                                             @csrf
@@ -96,7 +101,7 @@
         @yield('content')
     </main>
 
-    @unless(request()->routeIs('cart.index') || request()->routeIs('events.show'))
+    @unless(request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('events.show'))
     <!-- Footer -->
     <footer class="footer">
         <div class="container">

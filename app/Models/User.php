@@ -26,6 +26,14 @@ class User extends Authenticatable
         'google_id',
         'role',
         'status',
+        'contact_number',
+        'gender',
+        'nric_passport',
+        'country_region',
+        'street_address',
+        'town_city',
+        'state',
+        'postcode_zip',
     ];
 
     /**

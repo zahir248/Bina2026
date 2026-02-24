@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Client\AuthController;
 use App\Http\Controllers\Client\CartController;
+use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\EventCategoryController as ClientEventCategoryController;
 use App\Http\Controllers\Client\EventController as ClientEventController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -52,6 +53,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
     Route::post('/cart/apply-promo', [CartController::class, 'applyPromo'])->name('cart.applyPromo');
     Route::post('/cart/remove-promo', [CartController::class, 'removePromo'])->name('cart.removePromo');
+    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout.index');
+    Route::post('/checkout/apply-affiliate', [CartController::class, 'applyCheckoutAffiliate'])->name('checkout.applyAffiliate');
+    Route::post('/checkout/remove-affiliate', [CartController::class, 'removeCheckoutAffiliate'])->name('checkout.removeAffiliate');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Client\ProfileController;
 use App\Models\Cart;
 use App\Models\Event;
 use App\Models\PromoCode;
+use App\Models\AffiliateCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -326,5 +328,160 @@ class CartController extends Controller
         Cart::where('user_id', Auth::id())->delete();
 
         return redirect()->route('cart.index')->with('success', 'Cart cleared.');
+    }
+
+    /**
+     * Display the checkout page
+     */
+    public function checkout()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please log in to checkout.');
+        }
+
+        $carts = Cart::with(['ticket', 'event'])
+            ->where('user_id', Auth::id())
+            ->get();
+
+        if ($carts->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
+
+        // Group carts by event
+        $events = $carts->groupBy('event_id');
+
+        // Get event details for the first event
+        $event = null;
+        $eventData = null;
+        if ($events->isNotEmpty()) {
+            $firstEventId = $events->keys()->first();
+            $event = Event::with(['category', 'tickets'])
+                ->find($firstEventId);
+            
+            if ($event) {
+                $images = [];
+                if ($event->images && is_array($event->images) && count($event->images) > 0) {
+                    foreach ($event->images as $imagePath) {
+                        $images[] = storage_asset($imagePath);
+                    }
+                }
+                if (empty($images)) {
+                    $images = ['https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&h=1000&fit=crop'];
+                }
+                
+                $eventData = [
+                    'id' => $event->id,
+                    'name' => $event->name,
+                    'description' => $event->description,
+                    'category' => $event->category ? $event->category->name : null,
+                    'location' => $event->location,
+                    'google_maps_address' => $event->google_maps_address,
+                    'waze_location_address' => $event->waze_location_address,
+                    'start_datetime' => $event->start_datetime,
+                    'end_datetime' => $event->end_datetime,
+                    'date_time_formatted' => $event->start_datetime->format('j M Y, g:iA'),
+                    'image' => $images[0] ?? null,
+                    'images' => $images,
+                    'ticket_stock' => $event->ticket_stock ?? null,
+                ];
+            }
+        }
+
+        // Calculate total amount
+        $totalAmount = 0;
+        foreach ($carts as $cart) {
+            $unitPrice = $cart->ticket->getPriceForQuantity($cart->quantity);
+            $totalAmount += $unitPrice * $cart->quantity;
+        }
+
+        // Check applied promo code from session
+        $appliedPromo = null;
+        $discountAmount = 0;
+        $totalAfterDiscount = $totalAmount;
+        $firstEventId = $events->isNotEmpty() ? $events->keys()->first() : null;
+
+        if (session()->has('cart_promo_code_id') && $totalAmount > 0) {
+            $promo = PromoCode::with('events')->find(session('cart_promo_code_id'));
+            if ($promo && $promo->status === 'active') {
+                $appliesToEvent = $promo->events->isEmpty()
+                    || ($firstEventId && $promo->events->contains('id', $firstEventId));
+                if ($appliesToEvent) {
+                    $appliedPromo = $promo;
+                    $discountAmount = min((float) $promo->discount, $totalAmount);
+                    $totalAfterDiscount = max(0, $totalAmount - $discountAmount);
+                } else {
+                    session()->forget(['cart_promo_code_id', 'cart_promo_code', 'cart_promo_discount']);
+                }
+            } else {
+                session()->forget(['cart_promo_code_id', 'cart_promo_code', 'cart_promo_discount']);
+            }
+        }
+
+        // Check applied affiliate code from session
+        $appliedAffiliate = null;
+        if (session()->has('checkout_affiliate_code_id')) {
+            $affiliate = AffiliateCode::find(session('checkout_affiliate_code_id'));
+            if ($affiliate && $affiliate->status === 'active') {
+                $appliedAffiliate = $affiliate;
+            } else {
+                session()->forget(['checkout_affiliate_code_id', 'checkout_affiliate_code']);
+            }
+        }
+
+        // Get buyer details (authenticated user)
+        $buyer = Auth::user();
+
+        return view('client.checkout.index', [
+            'carts' => $carts,
+            'events' => $events,
+            'event' => $eventData,
+            'totalAmount' => $totalAmount,
+            'appliedPromo' => $appliedPromo,
+            'discountAmount' => $discountAmount,
+            'totalAfterDiscount' => $totalAfterDiscount,
+            'appliedAffiliate' => $appliedAffiliate,
+            'buyer' => $buyer,
+            'countriesRegions' => ProfileController::getCountriesRegions(),
+        ]);
+    }
+
+    /**
+     * Apply affiliate code on checkout
+     */
+    public function applyCheckoutAffiliate(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $affiliateRedirect = redirect()->to(route('checkout.index') . '#checkout-affiliate-section');
+        $code = trim($request->input('affiliate_code', ''));
+
+        $code = trim($request->input('affiliate_code'));
+        if (empty($code)) {
+            return redirect()->route('checkout.index')->with('error', 'Please enter an affiliate code.');
+        }
+
+        $affiliate = AffiliateCode::where('code', $code)->first();
+        if (!$affiliate) {
+            return redirect()->route('checkout.index')->with('error', 'Invalid affiliate code.');
+        }
+        if ($affiliate->status !== 'active') {
+            return redirect()->route('checkout.index')->with('error', 'This affiliate code is no longer active.');
+        }
+
+        session()->put('checkout_affiliate_code_id', $affiliate->id);
+        session()->put('checkout_affiliate_code', $affiliate->code);
+
+        return $affiliateRedirect->with('success', 'Affiliate code applied successfully.');
+    }
+
+    /**
+     * Remove applied affiliate code on checkout
+     */
+    public function removeCheckoutAffiliate()
+    {
+        session()->forget(['checkout_affiliate_code_id', 'checkout_affiliate_code']);
+        return redirect()->to(route('checkout.index') . '#checkout-affiliate-section')->with('success', 'Affiliate code removed.');
     }
 }

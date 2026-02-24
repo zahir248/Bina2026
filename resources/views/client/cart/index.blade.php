@@ -247,6 +247,7 @@
 .cart-items-title svg {
     width: 18px;
     height: 18px;
+    color: var(--primary-color);
 }
 
 .cart-items-actions {
@@ -839,6 +840,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (form) form.submit();
         });
     });
+
+    // Handle Confirm & Checkout button click
+    const confirmCheckoutBtn = document.querySelector('.btn-confirm-checkout');
+    if (confirmCheckoutBtn) {
+        confirmCheckoutBtn.addEventListener('click', function() {
+            window.location.href = '{{ route("checkout.index") }}';
+        });
+    }
 });
 </script>
 @endpush
