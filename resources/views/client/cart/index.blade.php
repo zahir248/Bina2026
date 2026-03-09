@@ -90,7 +90,10 @@
                         @empty
                             <div class="cart-empty">
                                 <p>Your cart is empty.</p>
-                                <a href="{{ route('home') }}" class="btn-continue-browsing">Continue Browsing</a>
+                                @if(($pendingPaymentCount ?? 0) > 0)
+                                    <p class="cart-empty-info"><strong>You have {{ $pendingPaymentCount }} pending payment{{ $pendingPaymentCount === 1 ? '' : 's' }}.</strong> Complete {{ $pendingPaymentCount === 1 ? 'it' : 'them' }} from your <a href="{{ route('profile.purchaseHistory') }}">Purchase History</a>.</p>
+                                @endif
+                                <a href="{{ route('home') }}#events-list-section" class="btn-continue-browsing">Continue Browsing</a>
                             </div>
                         @endforelse
                     </div>
@@ -159,7 +162,7 @@
                 <!-- Action Buttons (outside Items In Cart card; only when cart has items) -->
                 @if($carts->isNotEmpty())
                 <div class="cart-actions">
-                    <a href="{{ route('home') }}" class="btn-continue-browsing">Continue Browsing</a>
+                    <a href="{{ route('home') }}#events-list-section" class="btn-continue-browsing">Continue Browsing</a>
                     <button type="button" class="btn-confirm-checkout">Confirm & Checkout</button>
                 </div>
                 @endif
@@ -662,6 +665,23 @@
 .cart-empty p {
     font-size: 1.125rem;
     margin-bottom: 1rem;
+}
+
+.cart-empty-info {
+    font-size: 0.9375rem !important;
+    color: #6B7280 !important;
+    margin-bottom: 1.25rem !important;
+}
+
+.cart-empty-info a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.cart-empty-info a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
 }
 
 .cart-empty .btn-continue-browsing {

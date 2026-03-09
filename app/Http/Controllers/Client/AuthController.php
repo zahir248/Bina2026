@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\CheckMaintenanceMode;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +19,18 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        return view('client.auth.login');
+    }
+
+    /**
+     * Show the login form at /admin/login. Only available during maintenance mode;
+     * when maintenance is off, redirect to the normal login page.
+     */
+    public function showAdminLogin()
+    {
+        if (Setting::get(CheckMaintenanceMode::SETTING_KEY, '') !== '1') {
+            return redirect()->route('login');
+        }
         return view('client.auth.login');
     }
 
@@ -168,6 +182,13 @@ class AuthController extends Controller
         if ($user->status !== 'active') {
             return back()->withErrors([
                 'email' => 'Your account is inactive. Please contact the administrator.',
+            ])->onlyInput('email');
+        }
+
+        // During maintenance, only admins may sign in via the admin login page
+        if (Setting::get(CheckMaintenanceMode::SETTING_KEY, '') === '1' && $user->role !== 'admin' && str_contains(url()->previous(), '/admin/login')) {
+            return back()->withErrors([
+                'email' => 'Only administrator accounts can sign in here during maintenance. Please use the main site when it is back online.',
             ])->onlyInput('email');
         }
 

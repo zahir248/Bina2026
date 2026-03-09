@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Client\AuthController;
 use App\Http\Controllers\Client\CartController;
 use App\Http\Controllers\Client\ProfileController;
+use App\Http\Controllers\Client\CheckoutPaymentController;
 use App\Http\Controllers\Client\EventCategoryController as ClientEventCategoryController;
 use App\Http\Controllers\Client\EventController as ClientEventController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -16,6 +17,12 @@ use App\Http\Controllers\Admin\EventPersonnelController;
 use App\Http\Controllers\Admin\TicketController;
 use App\Http\Controllers\Admin\PromoCodeController;
 use App\Http\Controllers\Admin\AffiliateCodeController;
+use App\Http\Controllers\Admin\LogController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\EventParticipantsController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 
 // Serve storage files via Laravel (works on cPanel where public/storage symlink may not work)
 Route::get('/storage/serve/{path}', function (string $path) {
@@ -54,13 +61,24 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/cart/apply-promo', [CartController::class, 'applyPromo'])->name('cart.applyPromo');
     Route::post('/cart/remove-promo', [CartController::class, 'removePromo'])->name('cart.removePromo');
     Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout.index');
+    Route::post('/checkout/create-payment-intent', [CheckoutPaymentController::class, 'createPaymentIntent'])->name('checkout.createPaymentIntent');
+    Route::post('/checkout/update-intent-amount', [CheckoutPaymentController::class, 'updateIntentAmount'])->name('checkout.updateIntentAmount');
+    Route::get('/checkout/payment-success', [CheckoutPaymentController::class, 'success'])->name('checkout.paymentSuccess');
     Route::post('/checkout/apply-affiliate', [CartController::class, 'applyCheckoutAffiliate'])->name('checkout.applyAffiliate');
     Route::post('/checkout/remove-affiliate', [CartController::class, 'removeCheckoutAffiliate'])->name('checkout.removeAffiliate');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/purchase-history', [ProfileController::class, 'purchaseHistory'])->name('profile.purchaseHistory');
+    Route::get('/profile/orders/{order}/modal', [ProfileController::class, 'orderModal'])->name('profile.orderModal');
+    Route::post('/profile/orders/{order}/create-repay-intent', [CheckoutPaymentController::class, 'repayCreateIntent'])->name('profile.order.createRepayIntent');
+    Route::post('/profile/orders/{order}/cancel', [ProfileController::class, 'cancelOrder'])->name('profile.order.cancel');
+    Route::post('/profile/orders/{order}/refund', [ProfileController::class, 'refundOrder'])->name('profile.order.refund');
+    Route::get('/profile/orders/{order}/receipt', [ProfileController::class, 'downloadReceipt'])->name('profile.order.receipt');
+    Route::get('/profile/orders/{order}/qr-code/{index}', [ProfileController::class, 'downloadQrCode'])->name('profile.order.qrCode');
 });
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 Route::get('/login/google', [AuthController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('/signup/google', [AuthController::class, 'redirectToGoogleSignup'])->name('signup.google');
@@ -79,9 +97,11 @@ Route::get('/api/events', [ClientEventController::class, 'index'])->name('api.ev
 Route::get('/api/events/upcoming', [ClientEventController::class, 'upcoming'])->name('api.events.upcoming');
 
 // Admin Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['prevent_guest_admin_when_not_maintenance', 'auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::get('/event-participants', [EventParticipantsController::class, 'index'])->name('event-participants');
+    Route::get('/event-participants/export', [EventParticipantsController::class, 'export'])->name('event-participants.export');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
@@ -129,4 +149,30 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/affiliate-codes', [AffiliateCodeController::class, 'store'])->name('affiliate-codes.store');
     Route::put('/affiliate-codes/{id}', [AffiliateCodeController::class, 'update'])->name('affiliate-codes.update');
     Route::delete('/affiliate-codes/{id}', [AffiliateCodeController::class, 'destroy'])->name('affiliate-codes.destroy');
+
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders');
+    Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
+    Route::get('/orders/{order}/modal', [OrderController::class, 'modal'])->name('orders.modal');
+    Route::get('/orders/{order}/receipt', [OrderController::class, 'downloadReceipt'])->name('orders.receipt');
+    Route::get('/orders/{order}/qr-code/{index}', [OrderController::class, 'downloadQrCode'])->name('orders.qrCode');
+    Route::post('/orders/{order}/refund-approve', [OrderController::class, 'approveRefund'])->name('orders.refund.approve');
+    Route::post('/orders/{order}/refund-reject', [OrderController::class, 'rejectRefund'])->name('orders.refund.reject');
+
+    // Reports
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
+    Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
+
+    // Logs
+    Route::prefix('logs')->name('logs.')->group(function () {
+        Route::get('/email', [LogController::class, 'emailLog'])->name('email');
+    });
+
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Profile (logged-in admin)
+    Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
 });

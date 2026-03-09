@@ -227,7 +227,7 @@
                             </div>
                     </form>
                     <!-- Affiliate Section: its own form so Apply works without filling buyer/ticket details (not inside main form) -->
-                    <div class="checkout-section-card" id="checkout-affiliate">
+                    <div class="checkout-section-card" id="checkout-affiliate" data-apply-url="{{ route('checkout.applyAffiliate') }}" data-remove-url="{{ route('checkout.removeAffiliate') }}">
                         <div class="checkout-section-header">
                             <h2 class="checkout-section-title">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -295,7 +295,7 @@
                                 </div>
                                 @endif
 
-                                <!-- Total Amount -->
+                                <!-- Total Amount (processing fee shown in payment modal) -->
                                 <div class="checkout-total-section @if($appliedPromo ?? null) has-promo @endif">
                                     @if($appliedPromo ?? null)
                                         <div class="checkout-total-row">
@@ -311,17 +311,90 @@
                                         <span class="checkout-total-label">Total Amount</span>
                                         <span class="checkout-total-amount">RM {{ number_format($totalAfterDiscount ?? $totalAmount, 2) }}</span>
                                     </div>
+                                    <p class="checkout-total-note"><span class="checkout-total-note-asterisk">*</span> A payment processing fee (card/gateway charges) may apply and will be shown in the payment step.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     </div>
                     
-                    <!-- Submit Button (submits main form by id; main form contains only buyer + ticket holder) -->
-                    <div class="checkout-actions">
-                        <a href="{{ route('cart.index') }}" class="btn-back-to-cart">Back to Cart</a>
-                        <button type="submit" form="checkout-form" class="btn-complete-purchase">Complete Purchase</button>
+                    <!-- Grey line, disclaimer and buttons -->
+                    <div class="checkout-actions-wrapper" id="checkout-actions-wrapper">
+                        <p class="checkout-actions-disclaimer"><span class="checkout-total-note-asterisk">*</span> By clicking the Complete Purchase button below, I agree that all the information keyed in is correct. I understand the risk of providing wrong information to the organizer and agrees in bearing full responsibility when such case happens.</p>
+                        <div class="checkout-actions">
+                            <a href="{{ route('cart.index') }}" class="btn-back-to-cart">Back to Cart</a>
+                            <button type="button" id="btn-complete-purchase" class="btn-complete-purchase">Complete Purchase</button>
+                        </div>
                     </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment method modal -->
+<div id="payment-modal" class="payment-modal" aria-hidden="true" role="dialog" aria-labelledby="payment-modal-title">
+    <div class="payment-modal-backdrop"></div>
+    <div class="payment-modal-content">
+        <button type="button" class="payment-modal-close" id="payment-modal-close" aria-label="Close">&times;</button>
+        <div class="payment-modal-panels">
+            <div class="payment-modal-left">
+                <h2 id="payment-modal-title" class="payment-modal-title">Choose payment method</h2>
+                <div id="payment-modal-step-choose" class="payment-modal-step">
+                    <p class="payment-modal-text">Pay with:</p>
+                    <div class="payment-modal-buttons">
+                        <button type="button" class="payment-modal-btn payment-modal-btn-fpx" data-method="fpx">
+                            <span class="payment-modal-btn-icon">🏦</span>
+                            <span>FPX Online Banking</span>
+                        </button>
+                        <button type="button" class="payment-modal-btn payment-modal-btn-card" data-method="card">
+                            <span class="payment-modal-btn-icon">💳</span>
+                            <span>Credit / Debit Card</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="payment-modal-step-pay" class="payment-modal-step" style="display: none;">
+                    <p id="payment-modal-continue-text" class="payment-modal-continue-text">Click the button below to continue to the secure payment page.</p>
+                    <div id="payment-element-container"></div>
+                    <div class="payment-modal-actions">
+                        <button type="button" id="payment-modal-back" class="payment-modal-back-btn">Back</button>
+                        <button type="button" id="payment-modal-pay-now" class="payment-modal-pay-btn">Continue to payment</button>
+                    </div>
+                    <p id="payment-modal-error" class="payment-modal-error" style="display: none;"></p>
+                </div>
+            </div>
+            <div class="payment-modal-right">
+                <p class="payment-modal-right-title">Order summary</p>
+                <div id="payment-modal-order-summary" class="payment-modal-order-summary">
+                    <div class="payment-modal-summary-row">
+                        <span>Subtotal</span>
+                        <span id="payment-modal-summary-subtotal">—</span>
+                    </div>
+                    <div class="payment-modal-summary-row" id="payment-modal-summary-fee-row">
+                        <span title="Payment gateway and card processing charges">Payment processing fee</span>
+                        <span id="payment-modal-summary-fee">—</span>
+                    </div>
+                    <div id="payment-modal-fee-breakdown" class="payment-modal-fee-breakdown">
+                        @if($feeDomesticLabel ?? null)
+                            <p class="payment-modal-fee-breakdown-title">Payment processing fee:</p>
+                            <ul class="payment-modal-fee-list">
+                                <li data-method="card">{{ $feeDomesticLabel }} for domestic cards</li>
+                                @if($feeInternationalExtra ?? null)
+                                    <li data-method="card">{{ $feeInternationalExtra }}</li>
+                                @endif
+                                <li data-method="card">{{ $feeCurrencyNote ?? '+ 2% if currency conversion is required' }}</li>
+                                <li data-method="fpx">{{ $feeFpxLabel ?? $feeDomesticLabel }} FPX</li>
+                            </ul>
+                        @endif
+                    </div>
+                    <div class="payment-modal-summary-row payment-modal-summary-total">
+                        <span>Total</span>
+                        <span id="payment-modal-summary-total">—</span>
+                    </div>
+                    <div id="payment-modal-card-country-row" class="payment-modal-card-country-row" style="display: none;">
+                        <span>Card issued in</span>
+                        <span id="payment-modal-card-country-value">—</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -387,13 +460,14 @@
     display: grid;
     grid-template-columns: 1fr 400px;
     gap: 2rem;
-    align-items: flex-start;
+    align-items: stretch;
 }
 
 .checkout-left-panel {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-height: 0;
 }
 
 /* Allow sticky/fixed to work: no overflow on ancestors */
@@ -415,11 +489,14 @@
 
 .checkout-right-panel {
     position: relative;
-    align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 .checkout-summary-card {
-    max-height: calc(100vh - 6rem);
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
 }
 
@@ -748,6 +825,8 @@
 .checkout-affiliate-remove-btn:hover {
     color: #B91C1C;
 }
+.checkout-affiliate-ajax-success { color: #059669; }
+.checkout-affiliate-ajax-error { color: #DC2626; }
 
 .checkout-ticket-group {
     padding: 1rem;
@@ -864,14 +943,14 @@
 
 .checkout-promo-label {
     font-size: 0.8125rem;
-    color: #166534;
+    color: var(--primary-color);
     font-weight: 500;
     font-family: 'Inter', sans-serif;
 }
 
 .checkout-promo-code {
     font-size: 0.8125rem;
-    color: #166534;
+    color: var(--primary-color);
     font-weight: 700;
     font-family: 'Inter', sans-serif;
 }
@@ -921,14 +1000,41 @@
     white-space: nowrap;
 }
 
+.checkout-total-note {
+    font-size: 0.8125rem;
+    color: #6B7280;
+    margin: 0.5rem 0 0;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+}
+
+.checkout-total-note-asterisk {
+    color: #6B7280;
+}
+
+.checkout-actions-wrapper {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #E5E7EB;
+}
+
+.checkout-actions-disclaimer {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #4B5563;
+    margin: 0 0 1rem;
+    line-height: 1.5;
+    max-width: 64rem;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Inter', sans-serif;
+}
+
 .checkout-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #E5E7EB;
 }
 
 .btn-back-to-cart {
@@ -1032,20 +1138,684 @@
         width: 100%;
     }
 }
+
+/* Payment modal – professional */
+.payment-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.payment-modal.is-open {
+    opacity: 1;
+    visibility: visible;
+}
+html.payment-modal-open,
+body.payment-modal-open {
+    overflow: hidden;
+    height: 100%;
+}
+body.payment-modal-open {
+    position: fixed;
+    left: 0;
+    right: 0;
+    width: 100%;
+}
+.payment-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+}
+.payment-modal-content {
+    position: relative;
+    background: #fff;
+    border-radius: 12px;
+    padding: 0;
+    max-width: 740px;
+    width: 100%;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+.payment-modal-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: stretch;
+    min-height: 320px;
+}
+.payment-modal-left {
+    min-width: 0;
+    padding: 2rem 2rem 2rem 2.25rem;
+}
+.payment-modal-right {
+    min-width: 0;
+    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+    padding: 2rem;
+    border-left: 1px solid #E2E8F0;
+}
+.payment-modal-right-title {
+    margin: 0 0 1rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748B;
+}
+.payment-modal-title {
+    margin: 0 0 1.5rem;
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #0F172A;
+    letter-spacing: -0.02em;
+}
+.payment-modal-text {
+    margin: 0 0 1rem;
+    font-size: 0.9375rem;
+    color: #475569;
+}
+.payment-modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+.payment-modal-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #0F172A;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.payment-modal-btn:hover {
+    border-color: var(--primary-color, #ff9800);
+    background: #F0FDF4;
+    box-shadow: 0 2px 8px rgba(22, 101, 52, 0.12);
+}
+.payment-modal-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    line-height: 1;
+    width: 2.25rem;
+    height: 2.25rem;
+    background: #F1F5F9;
+    border-radius: 6px;
+}
+.payment-modal-btn span:last-child {
+    line-height: 1.4;
+}
+.payment-modal-continue-text {
+    margin: 0 0 1rem;
+    font-size: 0.9375rem;
+    color: #475569;
+}
+.payment-modal-continue-text.is-hidden {
+    display: none;
+}
+.payment-modal-step-pay .payment-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+.payment-modal-back-btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.payment-modal-back-btn:hover {
+    border-color: #CBD5E1;
+    background: #F8FAFC;
+}
+.payment-modal-pay-btn {
+    flex: 1;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary-color, #ff9800);
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.payment-modal-pay-btn:hover {
+    background: var(--primary-dark, #e68900);
+}
+.payment-modal-pay-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+.payment-modal-error {
+    margin: 0.75rem 0 0;
+    font-size: 0.875rem;
+    color: #DC2626;
+}
+.payment-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: none;
+    background: #F1F5F9;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: #64748B;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+    z-index: 1;
+}
+.payment-modal-close:hover {
+    background: #E2E8F0;
+    color: #0F172A;
+}
+#payment-element-container {
+    min-height: 120px;
+}
+.payment-modal-order-summary {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.payment-modal-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+.payment-modal-summary-row + .payment-modal-summary-row {
+    margin-top: 0.5rem;
+}
+.payment-modal-summary-row.payment-modal-summary-total {
+    margin-top: 0.875rem;
+    padding-top: 0.875rem;
+    border-top: 1px solid #E2E8F0;
+    font-weight: 700;
+    font-size: 1.0625rem;
+    color: #0F172A;
+}
+.payment-modal-card-country-row {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #E2E8F0;
+    font-size: 0.8125rem;
+    color: #64748B;
+}
+.payment-modal-card-country-row span:last-child {
+    font-weight: 600;
+    color: #0F172A;
+}
+.payment-modal-fee-breakdown {
+    margin: 1.25rem 0 0;
+}
+.payment-modal-fee-breakdown-title {
+    margin: 0 0 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748B;
+}
+.payment-modal-fee-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.75rem;
+    color: #64748B;
+    line-height: 1.5;
+}
+.payment-modal-fee-list li {
+    margin-bottom: 0.125rem;
+}
+@media (max-width: 640px) {
+    .payment-modal-panels {
+        grid-template-columns: 1fr;
+        min-height: 0;
+    }
+    .payment-modal-right {
+        border-left: none;
+        border-top: 1px solid #E2E8F0;
+    }
+    .payment-modal-left,
+    .payment-modal-right {
+        padding: 1.5rem;
+    }
+    .payment-modal-content {
+        max-width: 100%;
+    }
+}
 </style>
 @endpush
 
 @push('scripts')
+@php
+    $checkoutPaymentConfig = [
+        'stripeKey' => config('services.stripe.key'),
+        'createPaymentIntentUrl' => route('checkout.createPaymentIntent'),
+        'updateIntentAmountUrl' => route('checkout.updateIntentAmount'),
+        'paymentSuccessUrl' => url()->route('checkout.paymentSuccess'),
+        'csrfToken' => csrf_token(),
+        'orderSummary' => [
+            'subtotal' => (float) ($totalAfterDiscount ?? $totalAmount ?? 0),
+            'feeDomestic' => (float) ($processingFeeDomestic ?? 0),
+            'feeInternational' => (float) ($processingFeeInternational ?? 0),
+            'totalMin' => (float) ($totalWithFeeMin ?? $totalAfterDiscount ?? $totalAmount ?? 0),
+            'totalMax' => (float) ($totalWithFeeMax ?? $totalAfterDiscount ?? $totalAmount ?? 0),
+        ],
+    ];
+@endphp
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+window.checkoutPaymentConfig = @json($checkoutPaymentConfig);
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const checkoutForm = document.getElementById('checkout-form');
     
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', function(e) {
-            // Form validation will be handled by HTML5 validation
-            // You can add additional custom validation here if needed
+            e.preventDefault();
         });
     }
+
+    // Payment modal
+    var paymentModal = document.getElementById('payment-modal');
+    var btnCompletePurchase = document.getElementById('btn-complete-purchase');
+    var paymentStepChoose = document.getElementById('payment-modal-step-choose');
+    var paymentStepPay = document.getElementById('payment-modal-step-pay');
+    var paymentElementContainer = document.getElementById('payment-element-container');
+    var paymentModalBack = document.getElementById('payment-modal-back');
+    var paymentModalPayNow = document.getElementById('payment-modal-pay-now');
+    var paymentModalError = document.getElementById('payment-modal-error');
+    var paymentModalClose = document.getElementById('payment-modal-close');
+    var config = window.checkoutPaymentConfig || {};
+    var stripe = null;
+    var elements = null;
+    var currentClientSecret = null;
+    var currentPaymentIntentId = null;
+    var currentPaymentMethodType = null;
+    var paymentIntentCreated = false;
+    var paymentModalContinueText = document.getElementById('payment-modal-continue-text');
+    var cardElement = null;
+    var modalSummarySubtotal = document.getElementById('payment-modal-summary-subtotal');
+    var modalSummaryFee = document.getElementById('payment-modal-summary-fee');
+    var modalSummaryTotal = document.getElementById('payment-modal-summary-total');
+    var modalSummaryFeeRow = document.getElementById('payment-modal-summary-fee-row');
+
+    function formatRm(amount) {
+        return 'RM ' + (typeof amount === 'number' ? amount.toFixed(2) : amount);
+    }
+
+    function updateModalOrderSummary(method, isInternational) {
+        var summary = (config.orderSummary || {});
+        var subtotal = summary.subtotal || 0;
+        var feeDomestic = summary.feeDomestic || 0;
+        var feeInternational = summary.feeInternational || 0;
+        var totalMin = summary.totalMin || subtotal;
+        var totalMax = summary.totalMax || subtotal;
+        if (modalSummarySubtotal) modalSummarySubtotal.textContent = formatRm(subtotal);
+        var hasAnyFee = feeDomestic > 0 || feeInternational > 0;
+        if (modalSummaryFeeRow) modalSummaryFeeRow.style.display = hasAnyFee ? '' : 'none';
+        var feeBreakdownEl = document.getElementById('payment-modal-fee-breakdown');
+        if (feeBreakdownEl) {
+            feeBreakdownEl.style.display = hasAnyFee ? '' : 'none';
+            var breakdownItems = feeBreakdownEl.querySelectorAll('.payment-modal-fee-list li[data-method]');
+            breakdownItems.forEach(function(li) {
+                var itemMethod = li.getAttribute('data-method');
+                if (!method) li.style.display = '';
+                else li.style.display = itemMethod === method ? '' : 'none';
+            });
+        }
+        if (method === 'fpx') {
+            if (modalSummaryFee) modalSummaryFee.textContent = hasAnyFee ? formatRm(feeDomestic) : '—';
+            if (modalSummaryTotal) modalSummaryTotal.textContent = formatRm(totalMin);
+        } else if (method === 'card') {
+            /* Card fee shows "—" until user has entered card details; then updated in updateIntentAmount response */
+            if (modalSummaryFee) modalSummaryFee.textContent = '—';
+            if (modalSummaryTotal) modalSummaryTotal.textContent = 'Up to ' + formatRm(totalMax);
+        } else {
+            if (modalSummaryFee) modalSummaryFee.textContent = '—';
+            if (modalSummaryTotal) modalSummaryTotal.textContent = hasAnyFee ? 'Select payment method' : formatRm(subtotal);
+        }
+    }
+
+    function openPaymentModal() {
+        if (!checkoutForm || !checkoutForm.reportValidity()) return;
+        paymentStepChoose.style.display = '';
+        paymentStepPay.style.display = 'none';
+        paymentModalError.style.display = 'none';
+        paymentModalError.textContent = '';
+        paymentElementContainer.innerHTML = '';
+        currentClientSecret = null;
+        currentPaymentMethodType = null;
+        paymentIntentCreated = false;
+        updateModalOrderSummary(null, null);
+        if (paymentModal) {
+            var scrollY = window.scrollY || window.pageYOffset;
+            document.body.setAttribute('data-modal-scroll-y', scrollY);
+            document.body.style.top = scrollY ? (-scrollY + 'px') : '';
+            paymentModal.classList.add('is-open');
+            paymentModal.setAttribute('aria-hidden', 'false');
+            document.documentElement.classList.add('payment-modal-open');
+            document.body.classList.add('payment-modal-open');
+        }
+    }
+
+    function closePaymentModal() {
+        if (paymentModal) {
+            paymentModal.classList.remove('is-open');
+            paymentModal.setAttribute('aria-hidden', 'true');
+            document.documentElement.classList.remove('payment-modal-open');
+            document.body.classList.remove('payment-modal-open');
+            var scrollY = document.body.getAttribute('data-modal-scroll-y');
+            document.body.removeAttribute('data-modal-scroll-y');
+            document.body.style.top = '';
+            if (scrollY !== null && scrollY !== '') window.scrollTo(0, parseInt(scrollY, 10));
+        }
+        currentClientSecret = null;
+        paymentIntentCreated = false;
+        if (elements) elements = null;
+    }
+
+    function showPaymentStepPay() {
+        paymentStepChoose.style.display = 'none';
+        paymentStepPay.style.display = '';
+        paymentModalError.style.display = 'none';
+        updateModalOrderSummary(currentPaymentMethodType, null);
+    }
+
+    function showPaymentStepChoose() {
+        paymentStepPay.style.display = 'none';
+        paymentStepChoose.style.display = '';
+        paymentElementContainer.innerHTML = '';
+        currentClientSecret = null;
+        paymentIntentCreated = false;
+        currentPaymentMethodType = null;
+        if (elements) elements = null;
+        if (paymentModalPayNow) {
+            paymentModalPayNow.textContent = 'Continue to payment';
+            paymentModalPayNow.disabled = false;
+        }
+        if (paymentModalContinueText) paymentModalContinueText.classList.remove('is-hidden');
+        updateModalOrderSummary(null, null);
+    }
+
+    function getFormData() {
+        var form = document.getElementById('checkout-form');
+        if (!form) return null;
+        var fd = new FormData(form);
+        var data = {};
+        var ticketHoldersMap = {};
+        for (var p of fd.entries()) {
+            if (p[0].indexOf('ticket_holders[') === 0) {
+                var m = p[0].match(/ticket_holders\[(\d+)\]\[([^\]]+)\]/);
+                if (m) {
+                    var i = m[1];
+                    var k = m[2];
+                    if (!ticketHoldersMap[i]) ticketHoldersMap[i] = {};
+                    ticketHoldersMap[i][k] = p[1];
+                }
+            } else if (p[0] !== '_token') {
+                data[p[0]] = p[1];
+            }
+        }
+        data.ticket_holders = Object.keys(ticketHoldersMap).sort(function(a,b){ return Number(a) - Number(b); }).map(function(i) { return ticketHoldersMap[i]; });
+        return data;
+    }
+
+    function createPaymentIntent(method, callback) {
+        var data = getFormData();
+        if (!data) return callback(new Error('Form data not found'));
+        data.payment_method_type = method;
+        if (method === 'card') data.is_international = true;
+        data._token = data._token || config.csrfToken;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', config.createPaymentIntentUrl);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('X-CSRF-TOKEN', config.csrfToken);
+        xhr.onload = function() {
+            try {
+                var json = JSON.parse(xhr.responseText);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    callback(null, json.clientSecret, json.paymentIntentId || null);
+                } else {
+                    callback(new Error(json.error || json.message || 'Failed to create payment'));
+                }
+            } catch (e) {
+                callback(new Error('Invalid response'));
+            }
+        };
+        xhr.onerror = function() { callback(new Error('Network error')); };
+        xhr.send(JSON.stringify(data));
+    }
+
+    function initStripeAndMountElement(clientSecret, methodType) {
+        if (!config.stripeKey) {
+            paymentModalError.textContent = 'Stripe is not configured.';
+            paymentModalError.style.display = 'block';
+            return;
+        }
+        stripe = window.Stripe ? window.Stripe(config.stripeKey) : null;
+        if (!stripe) {
+            paymentModalError.textContent = 'Payment provider failed to load.';
+            paymentModalError.style.display = 'block';
+            return;
+        }
+        paymentModalPayNow.disabled = true;
+        cardElement = null;
+        var appearance = { theme: 'stripe', variables: { colorPrimary: '#ff9800' } };
+        var options = { clientSecret: clientSecret, appearance: appearance };
+        elements = stripe.elements(options);
+        if (methodType === 'card') {
+            cardElement = elements.create('card', { style: { base: { fontSize: '16px' } } });
+            cardElement.on('ready', function() { paymentModalPayNow.disabled = false; });
+            cardElement.mount('#payment-element-container');
+        } else {
+            var paymentElement = elements.create('payment', {
+                layout: { type: 'tabs', defaultCollapsed: false, radios: true, spacedAccent: true }
+            });
+            paymentElement.on('ready', function() { paymentModalPayNow.disabled = false; });
+            paymentElement.mount('#payment-element-container');
+        }
+    }
+
+    function onPaymentMethodChosen(method) {
+        paymentModalError.style.display = 'none';
+        paymentModalError.textContent = '';
+        currentPaymentMethodType = method;
+        paymentIntentCreated = false;
+        if (paymentModalPayNow) {
+            paymentModalPayNow.textContent = 'Continue to payment';
+            paymentModalPayNow.disabled = false;
+        }
+        if (paymentModalContinueText) paymentModalContinueText.classList.remove('is-hidden');
+        paymentElementContainer.innerHTML = '';
+        currentClientSecret = null;
+        currentPaymentIntentId = null;
+        if (elements) elements = null;
+        cardElement = null;
+        showPaymentStepPay();
+    }
+
+    function onPayButtonClick() {
+        if (!paymentIntentCreated) {
+            if (!currentPaymentMethodType) {
+                paymentModalError.textContent = 'Please choose a payment method first.';
+                paymentModalError.style.display = 'block';
+                return;
+            }
+            paymentModalPayNow.disabled = true;
+            paymentModalError.style.display = 'none';
+            paymentModalError.textContent = '';
+            createPaymentIntent(currentPaymentMethodType, function(err, clientSecret, paymentIntentId) {
+                if (err) {
+                    paymentModalError.textContent = err.message;
+                    paymentModalError.style.display = 'block';
+                    paymentModalPayNow.disabled = false;
+                    return;
+                }
+                currentClientSecret = clientSecret;
+                currentPaymentIntentId = paymentIntentId || null;
+                paymentIntentCreated = true;
+                if (paymentModalPayNow) paymentModalPayNow.textContent = 'Pay now';
+                if (paymentModalContinueText) paymentModalContinueText.classList.add('is-hidden');
+                initStripeAndMountElement(clientSecret, currentPaymentMethodType);
+            });
+            return;
+        }
+        confirmPayment();
+    }
+
+    function confirmPayment() {
+        if (!stripe || !currentClientSecret) {
+            paymentModalError.textContent = 'Payment form is not ready. Please wait or go back and try again.';
+            paymentModalError.style.display = 'block';
+            return;
+        }
+        var returnUrl = config.paymentSuccessUrl;
+        if (!returnUrl || returnUrl.indexOf('http') !== 0) {
+            returnUrl = window.location.origin + (config.paymentSuccessUrl || '/checkout/payment-success');
+        }
+        paymentModalPayNow.disabled = true;
+        paymentModalError.style.display = 'none';
+        paymentModalError.textContent = '';
+
+        if (currentPaymentMethodType === 'card' && cardElement) {
+            stripe.createPaymentMethod({ type: 'card', card: cardElement }).then(function(pmResult) {
+                if (pmResult.error) {
+                    paymentModalError.textContent = pmResult.error.message || 'Card details invalid.';
+                    paymentModalError.style.display = 'block';
+                    paymentModalPayNow.disabled = false;
+                    return;
+                }
+                var cardCountry = (pmResult.paymentMethod && pmResult.paymentMethod.card && pmResult.paymentMethod.card.country) ? pmResult.paymentMethod.card.country : '';
+                var updateUrl = config.updateIntentAmountUrl;
+                if (updateUrl && currentPaymentIntentId && cardCountry) {
+                    return fetch(updateUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': config.csrfToken },
+                        body: JSON.stringify({ payment_intent_id: currentPaymentIntentId, card_country: cardCountry, _token: config.csrfToken })
+                    }).then(function(r) { return r.json(); }).then(function(data) {
+                        if (data.success && modalSummaryFee && modalSummaryTotal && config.orderSummary) {
+                            var summary = config.orderSummary;
+                            if (data.updated) {
+                                modalSummaryFee.textContent = 'RM ' + (summary.feeDomestic || 0).toFixed(2);
+                                modalSummaryTotal.textContent = 'RM ' + (summary.totalMin || 0).toFixed(2);
+                            } else {
+                                modalSummaryFee.textContent = 'RM ' + (summary.feeInternational || 0).toFixed(2);
+                                modalSummaryTotal.textContent = 'RM ' + (summary.totalMax || 0).toFixed(2);
+                            }
+                        }
+                        return stripe.confirmCardPayment(currentClientSecret, { payment_method: pmResult.paymentMethod.id });
+                    });
+                }
+                return stripe.confirmCardPayment(currentClientSecret, { payment_method: pmResult.paymentMethod.id });
+            }).then(function(result) {
+                if (result && result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                    var successUrl = returnUrl;
+                    if (currentPaymentIntentId) {
+                        var sep = successUrl.indexOf('?') >= 0 ? '&' : '?';
+                        successUrl = successUrl + sep + 'payment_intent=' + encodeURIComponent(currentPaymentIntentId);
+                    }
+                    window.location.href = successUrl;
+                    return;
+                }
+                /* Card declined or failed: redirect to success URL so backend creates pending order and redirects to Purchase History (same as FPX) */
+                if (result && result.error && currentPaymentIntentId) {
+                    var failUrl = returnUrl;
+                    var sep = failUrl.indexOf('?') >= 0 ? '&' : '?';
+                    window.location.href = failUrl + sep + 'payment_intent=' + encodeURIComponent(currentPaymentIntentId);
+                    return;
+                }
+                paymentModalError.textContent = (result && result.error && result.error.message) ? result.error.message : 'Payment failed.';
+                paymentModalError.style.display = 'block';
+                paymentModalPayNow.disabled = false;
+            }).catch(function(err) {
+                paymentModalError.textContent = err.message || 'Something went wrong. Please try again.';
+                paymentModalError.style.display = 'block';
+                paymentModalPayNow.disabled = false;
+            });
+            return;
+        }
+
+        if (!elements) {
+            paymentModalError.textContent = 'Payment form is not ready.';
+            paymentModalError.style.display = 'block';
+            paymentModalPayNow.disabled = false;
+            return;
+        }
+        elements.submit().then(function() {
+            return stripe.confirmPayment({
+                elements: elements,
+                clientSecret: currentClientSecret,
+                confirmParams: { return_url: returnUrl }
+            });
+        }).then(function(result) {
+            if (result.error) {
+                paymentModalError.textContent = result.error.message || 'Payment failed.';
+                paymentModalError.style.display = 'block';
+                paymentModalPayNow.disabled = false;
+            }
+            if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                var successUrl = returnUrl;
+                var piId = (result.paymentIntent && result.paymentIntent.id) || currentPaymentIntentId;
+                if (piId) {
+                    var sep = successUrl.indexOf('?') >= 0 ? '&' : '?';
+                    successUrl = successUrl + sep + 'payment_intent=' + encodeURIComponent(piId);
+                }
+                window.location.href = successUrl;
+            }
+        }).catch(function(err) {
+            paymentModalError.textContent = err.message || 'Something went wrong. Please try again.';
+            paymentModalError.style.display = 'block';
+            paymentModalPayNow.disabled = false;
+        });
+    }
+
+    if (btnCompletePurchase) {
+        btnCompletePurchase.addEventListener('click', openPaymentModal);
+    }
+    if (paymentModalClose) {
+        paymentModalClose.addEventListener('click', closePaymentModal);
+    }
+    /* Modal closes only via the X button; backdrop click does not close */
+    paymentModalBack && paymentModalBack.addEventListener('click', showPaymentStepChoose);
+    paymentModalPayNow && paymentModalPayNow.addEventListener('click', onPayButtonClick);
+
+    document.querySelectorAll('.payment-modal-btn[data-method]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            onPaymentMethodChosen(this.getAttribute('data-method'));
+        });
+    });
 
     // When URL has #checkout-affiliate, scroll to affiliate section and focus input (after Apply/Remove redirect)
     if (window.location.hash === '#checkout-affiliate') {
@@ -1056,6 +1826,107 @@ document.addEventListener('DOMContentLoaded', function() {
             if (affiliateInput) setTimeout(function() { affiliateInput.focus(); }, 100);
         }
     }
+
+    // Affiliate Apply/Remove via AJAX so buyer and ticket holder details are not lost
+    (function() {
+        var affiliateCard = document.getElementById('checkout-affiliate');
+        if (!affiliateCard) return;
+        var bodyEl = affiliateCard.querySelector('.checkout-section-body');
+        if (!bodyEl) return;
+        var applyUrl = affiliateCard.getAttribute('data-apply-url');
+        var removeUrl = affiliateCard.getAttribute('data-remove-url');
+        var csrfToken = (window.checkoutPaymentConfig && window.checkoutPaymentConfig.csrfToken) || (document.querySelector('#checkout-form input[name="_token"]') && document.querySelector('#checkout-form input[name="_token"]').value) || '';
+
+        function showAffiliateMessage(text, isError) {
+            var existing = bodyEl.querySelector('.checkout-affiliate-ajax-message');
+            if (existing) existing.remove();
+            var msg = document.createElement('p');
+            msg.className = 'checkout-affiliate-ajax-message ' + (isError ? 'checkout-affiliate-ajax-error' : 'checkout-affiliate-ajax-success');
+            msg.textContent = text;
+            msg.style.marginBottom = '0.75rem';
+            msg.style.fontSize = '0.875rem';
+            bodyEl.insertBefore(msg, bodyEl.firstChild);
+            setTimeout(function() { if (msg.parentNode) msg.remove(); }, 4000);
+        }
+
+        function renderAppliedState(code) {
+            bodyEl.innerHTML =
+                '<p class="checkout-affiliate-label">Affiliate applied: <strong>' + (code || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</strong></p>' +
+                '<form method="POST" action="' + removeUrl.replace(/&/g, '&amp;') + '" style="display: inline;" data-affiliate-action="remove">' +
+                '<input type="hidden" name="_token" value="' + (csrfToken || '').replace(/"/g, '&quot;') + '">' +
+                '<button type="submit" class="checkout-affiliate-remove-btn">Remove</button>' +
+                '</form>' +
+                '<p class="checkout-info-text" style="margin-top: 0.5rem; margin-bottom: 0;">If you have an affiliate code, enter it here to support your affiliate.</p>';
+        }
+
+        function renderApplyState() {
+            bodyEl.innerHTML =
+                '<form method="POST" action="' + applyUrl.replace(/&/g, '&amp;') + '" class="checkout-affiliate-form">' +
+                '<input type="hidden" name="_token" value="' + (csrfToken || '').replace(/"/g, '&quot;') + '">' +
+                '<div class="checkout-affiliate-input-group">' +
+                '<input type="text" id="checkout_affiliate_code" name="affiliate_code" class="checkout-affiliate-input" placeholder="Affiliate Code" value="" autocomplete="off">' +
+                '<button type="submit" class="checkout-affiliate-btn">Apply</button>' +
+                '</div>' +
+                '</form>' +
+                '<p class="checkout-info-text" style="margin-top: 0.5rem; margin-bottom: 0;">If you have an affiliate code, enter it here to support your affiliate.</p>';
+        }
+
+        affiliateCard.addEventListener('submit', function(e) {
+            var form = e.target;
+            if (!form || form.tagName !== 'FORM') return;
+            if (form.classList.contains('checkout-affiliate-form')) {
+                e.preventDefault();
+                var codeInput = form.querySelector('input[name="affiliate_code"]');
+                var code = codeInput ? codeInput.value.trim() : '';
+                var btn = form.querySelector('button[type="submit"]');
+                if (btn) { btn.disabled = true; btn.textContent = 'Applying...'; }
+                var fd = new FormData();
+                fd.append('_token', csrfToken);
+                fd.append('affiliate_code', code);
+                fetch(applyUrl, {
+                    method: 'POST',
+                    body: fd,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                }).then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+                .then(function(result) {
+                    if (btn) { btn.disabled = false; btn.textContent = 'Apply'; }
+                    if (result.ok && result.data && result.data.success) {
+                        renderAppliedState(result.data.code);
+                        showAffiliateMessage('Affiliate code applied successfully.', false);
+                    } else {
+                        showAffiliateMessage(result.data && result.data.error ? result.data.error : 'Something went wrong.', true);
+                    }
+                }).catch(function() {
+                    if (btn) { btn.disabled = false; btn.textContent = 'Apply'; }
+                    showAffiliateMessage('Something went wrong. Please try again.', true);
+                });
+                return;
+            }
+            if (form.getAttribute('data-affiliate-action') === 'remove') {
+                e.preventDefault();
+                var btn = form.querySelector('button[type="submit"]');
+                if (btn) { btn.disabled = true; btn.textContent = 'Removing...'; }
+                var fd = new FormData();
+                fd.append('_token', csrfToken);
+                fetch(removeUrl, {
+                    method: 'POST',
+                    body: fd,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                }).then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+                .then(function(result) {
+                    if (btn) { btn.disabled = false; btn.textContent = 'Remove'; }
+                    if (result.ok && result.data && result.data.success) {
+                        renderApplyState();
+                        showAffiliateMessage('Affiliate code removed.', false);
+                    }
+                }).catch(function() {
+                    if (btn) { btn.disabled = false; btn.textContent = 'Remove'; }
+                    showAffiliateMessage('Something went wrong. Please try again.', true);
+                });
+                return;
+            }
+        });
+    })();
 
     // Buyer country dropdown (same as profile page)
     var buyerCountryTrigger = document.getElementById('buyer_country_trigger');
@@ -1223,9 +2094,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Order summary sticky: follow scroll when CSS sticky is broken (e.g. by overflow on body)
+    // Right panel bottom aligns with affiliate section bottom; when sticky, card must not extend past the grey line
     (function() {
         var panel = document.getElementById('checkout-right-panel');
         var card = document.getElementById('checkout-order-summary-card');
+        var actionsWrapper = document.getElementById('checkout-actions-wrapper');
         if (!panel || !card) return;
         var stickyTop = 80;
         var ticking = false;
@@ -1235,19 +2108,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.classList.remove('is-sticky-fixed');
                 card.style.left = '';
                 card.style.width = '';
+                card.style.maxHeight = '';
                 panel.style.minHeight = '';
                 return;
             }
             var rect = panel.getBoundingClientRect();
             if (rect.top <= stickyTop) {
+                var wrapperTop = actionsWrapper ? actionsWrapper.getBoundingClientRect().top : window.innerHeight;
+                var maxCardHeight = Math.max(200, wrapperTop - stickyTop - 8);
                 card.classList.add('is-sticky-fixed');
                 card.style.left = rect.left + 'px';
                 card.style.width = rect.width + 'px';
+                card.style.maxHeight = maxCardHeight + 'px';
                 panel.style.minHeight = (rect.height) + 'px';
             } else {
                 card.classList.remove('is-sticky-fixed');
                 card.style.left = '';
                 card.style.width = '';
+                card.style.maxHeight = '';
                 panel.style.minHeight = '';
             }
         }

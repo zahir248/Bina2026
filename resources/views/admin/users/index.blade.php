@@ -89,6 +89,15 @@
                             <option value="inactive" {{ ($statusFilter ?? '') === 'inactive' ? 'selected' : '' }}>Inactive</option>
                         </select>
                     </div>
+
+                    <!-- Ticket purchaser filter -->
+                    <div class="col-md-4 d-flex align-items-center">
+                        <input type="hidden" name="ticket_purchaser" value="0">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="ticket_purchaser" id="ticket_purchaser" value="1" {{ ($ticketPurchaserFilter ?? false) ? 'checked' : '' }}>
+                            <label class="form-check-label form-label mb-0" for="ticket_purchaser" style="font-size: 0.875rem; font-weight: 500;">Ticket purchaser</label>
+                        </div>
+                    </div>
                 </div>
             </form>
             <div class="table-responsive">
@@ -383,6 +392,13 @@
             // Auto-submit on status change
             if (statusSelect) {
                 statusSelect.addEventListener('change', function() {
+                    filterForm.submit();
+                });
+            }
+
+            const ticketPurchaserCheckbox = document.getElementById('ticket_purchaser');
+            if (ticketPurchaserCheckbox) {
+                ticketPurchaserCheckbox.addEventListener('change', function() {
                     filterForm.submit();
                 });
             }

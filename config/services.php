@@ -41,4 +41,14 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL').'/auth/google/callback'),
     ],
 
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        // Pass Stripe processing fee to customer. See: https://stripe.com/en-my/pricing
+        // Domestic (FPX / Malaysia card): fee_percentage + fee_fixed_cents. International card: fee_percentage_international + fee_fixed_cents.
+        'fee_percentage' => (float) env('STRIPE_FEE_PERCENTAGE', 0),
+        'fee_percentage_international' => (float) env('STRIPE_FEE_PERCENTAGE_INTERNATIONAL', 0),
+        'fee_fixed_cents' => (int) env('STRIPE_FEE_FIXED_CENTS', 0),
+    ],
+
 ];

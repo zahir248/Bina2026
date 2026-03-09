@@ -63,7 +63,7 @@
             width: 260px;
             background-color: var(--sidebar-bg);
             color: var(--sidebar-text);
-            overflow-y: auto;
+            overflow: hidden;
             z-index: 1000;
             transition: transform 0.3s ease;
         }
@@ -81,12 +81,24 @@
             border-radius: 3px;
         }
 
+        .sidebar-nav::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: var(--sidebar-bg);
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: var(--sidebar-hover);
+            border-radius: 3px;
+        }
+
         .sidebar-header {
             padding: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .sidebar-logo-link {
@@ -114,13 +126,15 @@
         .sidebar-nav {
             padding: 16px 0;
             flex: 1;
+            min-height: 0;
             overflow-y: auto;
         }
         
         .sidebar-wrapper {
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            height: 100%;
+            min-height: 100vh;
         }
 
         .nav-item {
@@ -228,6 +242,24 @@
             font-size: 14px;
         }
 
+        .sidebar-pending-badge {
+            margin-left: auto;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 20px;
+            text-align: center;
+            background-color: #DC2626;
+            color: #FFFFFF;
+            border-radius: 10px;
+        }
+
+        .sidebar-pending-badge-nav {
+            margin-left: auto;
+        }
+
         /* Main Content Area */
         .admin-main {
             margin-left: 260px;
@@ -237,12 +269,9 @@
 
         /* Sidebar Footer */
         .sidebar-footer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
             padding: 16px 0;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
         }
 
         /* Content Area */
@@ -351,6 +380,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
 
         .btn-admin-primary {
@@ -412,11 +442,25 @@
                         <span>Dashboard</span>
                     </a>
                 </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.users') }}" class="nav-link {{ request()->routeIs('admin.users') ? 'active' : '' }}">
+                <div class="nav-item dropdown {{ request()->routeIs('admin.users*') || request()->routeIs('admin.event-participants*') ? 'show' : '' }}">
+                    <a href="#" class="nav-link dropdown-toggle {{ request()->routeIs('admin.users*') || request()->routeIs('admin.event-participants*') ? 'active' : '' }}">
                         <i class="bi bi-people"></i>
                         <span>Users</span>
                     </a>
+                    <ul class="nav-submenu">
+                        <li class="nav-submenu-item">
+                            <a href="{{ route('admin.users') }}" class="nav-submenu-link {{ request()->routeIs('admin.users*') && !request()->routeIs('admin.event-participants*') ? 'active' : '' }}">
+                                <i class="bi bi-people"></i>
+                                <span>All Users</span>
+                            </a>
+                        </li>
+                        <li class="nav-submenu-item">
+                            <a href="{{ route('admin.event-participants') }}" class="nav-submenu-link {{ request()->routeIs('admin.event-participants*') ? 'active' : '' }}">
+                                <i class="bi bi-person-lines-fill"></i>
+                                <span>Event Participants</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
                 <div class="nav-item dropdown {{ request()->routeIs('admin.events.categories*') || request()->routeIs('admin.events.index*') || request()->routeIs('admin.events.store') || request()->routeIs('admin.events.update') || request()->routeIs('admin.events.destroy') || request()->routeIs('admin.events.schedules*') || request()->routeIs('admin.events.personnel*') || request()->routeIs('admin.events.tickets*') ? 'show' : '' }}">
                     <a href="#" class="nav-link dropdown-toggle {{ request()->routeIs('admin.events.categories*') || request()->routeIs('admin.events.index*') || request()->routeIs('admin.events.store') || request()->routeIs('admin.events.update') || request()->routeIs('admin.events.destroy') || request()->routeIs('admin.events.schedules*') || request()->routeIs('admin.events.personnel*') || request()->routeIs('admin.events.tickets*') ? 'active' : '' }}">
@@ -468,10 +512,62 @@
                         <span>Affiliate Code</span>
                     </a>
                 </div>
+                <div class="nav-item dropdown {{ request()->routeIs('admin.orders*') ? 'show' : '' }}">
+                    <a href="#" class="nav-link dropdown-toggle {{ request()->routeIs('admin.orders*') ? 'active' : '' }}">
+                        <i class="bi bi-cart-check"></i>
+                        <span>Orders</span>
+                        @if(($pendingRefundCount ?? 0) > 0)
+                            <span class="sidebar-pending-badge sidebar-pending-badge-nav">{{ $pendingRefundCount }}</span>
+                        @endif
+                    </a>
+                    <ul class="nav-submenu">
+                        <li class="nav-submenu-item">
+                            <a href="{{ route('admin.orders') }}" class="nav-submenu-link {{ request()->routeIs('admin.orders*') && request()->get('refund_orders') != 1 ? 'active' : '' }}">
+                                <i class="bi bi-list-ul"></i>
+                                <span>All Orders</span>
+                            </a>
+                        </li>
+                        <li class="nav-submenu-item">
+                            <a href="{{ route('admin.orders', ['refund_orders' => 1]) }}" class="nav-submenu-link {{ request()->routeIs('admin.orders*') && request()->get('refund_orders') == 1 ? 'active' : '' }}">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                                <span>Refund Orders</span>
+                                @if(($pendingRefundCount ?? 0) > 0)
+                                    <span class="sidebar-pending-badge">{{ $pendingRefundCount }}</span>
+                                @endif
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.reports') }}" class="nav-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Reports</span>
+                    </a>
+                </div>
+                <div class="nav-item dropdown {{ request()->routeIs('admin.logs*') ? 'show' : '' }}">
+                    <a href="#" class="nav-link dropdown-toggle {{ request()->routeIs('admin.logs*') ? 'active' : '' }}">
+                        <i class="bi bi-journal-text"></i>
+                        <span>Logs</span>
+                    </a>
+                    <ul class="nav-submenu">
+                        <li class="nav-submenu-item">
+                            <a href="{{ route('admin.logs.email') }}" class="nav-submenu-link {{ request()->routeIs('admin.logs.email') ? 'active' : '' }}">
+                                <i class="bi bi-envelope"></i>
+                                <span>Email log</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.settings') }}" class="nav-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
+                        <i class="bi bi-gear"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
             </nav>
             <div class="sidebar-footer">
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('admin.profile') }}" class="nav-link {{ request()->routeIs('admin.profile*') ? 'active' : '' }}">
                         <i class="bi bi-person"></i>
                         <span>Profile</span>
                     </a>
@@ -504,16 +600,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Handle sidebar dropdown toggle
+        // Handle sidebar dropdown toggle (supports multiple dropdown menus)
         document.addEventListener('DOMContentLoaded', function() {
-            const dropdownToggle = document.querySelector('.nav-link.dropdown-toggle');
-            if (dropdownToggle) {
-                dropdownToggle.addEventListener('click', function(e) {
+            const dropdownToggles = document.querySelectorAll('.nav-link.dropdown-toggle');
+            dropdownToggles.forEach(function(toggle) {
+                toggle.addEventListener('click', function(e) {
                     e.preventDefault();
                     const navItem = this.closest('.nav-item');
-                    navItem.classList.toggle('show');
+                    if (navItem) {
+                        navItem.classList.toggle('show');
+                    }
                 });
-            }
+            });
         });
         
         // Toast notification handler - available on all pages

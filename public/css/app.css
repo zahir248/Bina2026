@@ -3261,6 +3261,13 @@ body {
     transform: scale(1.05);
 }
 
+.footer-newsletter-logo {
+    display: block;
+    margin-top: 1.25rem;
+    max-width: 100%;
+    height: auto;
+}
+
 .footer-title-quick {
     font-size: 1rem;
     font-weight: 700;

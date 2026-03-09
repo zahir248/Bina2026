@@ -23,9 +23,15 @@ class UserController extends Controller
         $search = $request->get('search', '');
         $roleFilter = $request->get('role', '');
         $statusFilter = $request->get('status', '');
+        $ticketPurchaserFilter = $request->boolean('ticket_purchaser');
         
         // Start building query
         $query = User::query();
+        
+        // Apply ticket purchaser filter (users who have at least one order)
+        if ($ticketPurchaserFilter) {
+            $query->whereHas('orders');
+        }
         
         // Apply search filter (username, name, email)
         if (!empty($search)) {
@@ -55,7 +61,7 @@ class UserController extends Controller
         // Paginate with query parameters
         $users = $query->paginate(15)->withQueryString();
 
-        return view('admin.users.index', compact('users', 'search', 'roleFilter', 'statusFilter'));
+        return view('admin.users.index', compact('users', 'search', 'roleFilter', 'statusFilter', 'ticketPurchaserFilter'));
     }
 
     public function store(Request $request)

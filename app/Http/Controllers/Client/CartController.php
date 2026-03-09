@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Client\ProfileController;
 use App\Models\Cart;
 use App\Models\Event;
+use App\Models\Order;
 use App\Models\PromoCode;
 use App\Models\AffiliateCode;
 use Illuminate\Http\Request;
@@ -97,6 +98,10 @@ class CartController extends Controller
             }
         }
 
+        $pendingPaymentCount = Order::where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->count();
+
         return view('client.cart.index', [
             'carts' => $carts,
             'events' => $events,
@@ -105,6 +110,7 @@ class CartController extends Controller
             'appliedPromo' => $appliedPromo,
             'discountAmount' => $discountAmount,
             'totalAfterDiscount' => $totalAfterDiscount,
+            'pendingPaymentCount' => $pendingPaymentCount,
         ]);
     }
 
@@ -428,6 +434,39 @@ class CartController extends Controller
             }
         }
 
+        // Processing fee (Stripe): domestic/FPX vs international; applied when user selects in payment modal
+        $subtotalCents = (int) round($totalAfterDiscount * 100);
+        $feeFixedCents = (int) config('services.stripe.fee_fixed_cents', 0);
+        $feePctDomestic = (float) config('services.stripe.fee_percentage', 0);
+        $feePctInternational = (float) config('services.stripe.fee_percentage_international', 0);
+        if ($feePctInternational <= 0) {
+            $feePctInternational = $feePctDomestic;
+        }
+        $processingFeeDomesticCents = $feePctDomestic > 0
+            ? (int) round($subtotalCents * $feePctDomestic / 100) + $feeFixedCents
+            : $feeFixedCents;
+        $processingFeeInternationalCents = $feePctInternational > 0
+            ? (int) round($subtotalCents * $feePctInternational / 100) + $feeFixedCents
+            : $feeFixedCents;
+        $processingFeeDomestic = $processingFeeDomesticCents / 100;
+        $processingFeeInternational = $processingFeeInternationalCents / 100;
+        $totalWithFeeMin = $totalAfterDiscount + $processingFeeDomestic;
+        $totalWithFeeMax = $totalAfterDiscount + $processingFeeInternational;
+        $processingFee = $processingFeeInternational;
+        $totalWithFee = $totalWithFeeMax;
+
+        $feeFixedRm = $feeFixedCents / 100;
+        $pctDomesticStr = $feePctDomestic == (int) $feePctDomestic ? (int) $feePctDomestic : number_format($feePctDomestic, 1);
+        $feeBaseLabel = $feePctDomestic > 0 || $feeFixedCents > 0
+            ? $pctDomesticStr . '% + RM ' . number_format($feeFixedRm, 2)
+            : null;
+        $feeDomesticLabel = $feeBaseLabel ? $feeBaseLabel . ' per successful transaction' : null;
+        $feeFpxLabel = $feeBaseLabel;
+        $feeInternationalExtra = ($feePctInternational > 0 && $feePctInternational != $feePctDomestic)
+            ? '+ ' . (($feePctInternational - $feePctDomestic) == (int)($feePctInternational - $feePctDomestic) ? (int)($feePctInternational - $feePctDomestic) : number_format($feePctInternational - $feePctDomestic, 1)) . '% for international cards'
+            : null;
+        $feeCurrencyNote = '+ 2% if currency conversion is required';
+
         // Get buyer details (authenticated user)
         $buyer = Auth::user();
 
@@ -439,6 +478,17 @@ class CartController extends Controller
             'appliedPromo' => $appliedPromo,
             'discountAmount' => $discountAmount,
             'totalAfterDiscount' => $totalAfterDiscount,
+            'processingFee' => $processingFee,
+            'totalWithFee' => $totalWithFee,
+            'processingFeeDomestic' => $processingFeeDomestic,
+            'processingFeeInternational' => $processingFeeInternational,
+            'totalWithFeeMin' => $totalWithFeeMin,
+            'totalWithFeeMax' => $totalWithFeeMax,
+            'hasFeeTiers' => $feePctDomestic > 0 && $feePctInternational > 0 && abs($feePctInternational - $feePctDomestic) > 0,
+            'feeDomesticLabel' => $feeDomesticLabel,
+            'feeInternationalExtra' => $feeInternationalExtra,
+            'feeCurrencyNote' => $feeCurrencyNote,
+            'feeFpxLabel' => $feeFpxLabel,
             'appliedAffiliate' => $appliedAffiliate,
             'buyer' => $buyer,
             'countriesRegions' => ProfileController::getCountriesRegions(),
@@ -451,37 +501,52 @@ class CartController extends Controller
     public function applyCheckoutAffiliate(Request $request)
     {
         if (!Auth::check()) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'Please log in.'], 401);
+            }
             return redirect()->route('login');
         }
 
-        $affiliateRedirect = redirect()->to(route('checkout.index') . '#checkout-affiliate-section');
         $code = trim($request->input('affiliate_code', ''));
-
-        $code = trim($request->input('affiliate_code'));
         if (empty($code)) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'Please enter an affiliate code.']);
+            }
             return redirect()->route('checkout.index')->with('error', 'Please enter an affiliate code.');
         }
 
         $affiliate = AffiliateCode::where('code', $code)->first();
         if (!$affiliate) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'Invalid affiliate code.']);
+            }
             return redirect()->route('checkout.index')->with('error', 'Invalid affiliate code.');
         }
         if ($affiliate->status !== 'active') {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'error' => 'This affiliate code is no longer active.']);
+            }
             return redirect()->route('checkout.index')->with('error', 'This affiliate code is no longer active.');
         }
 
         session()->put('checkout_affiliate_code_id', $affiliate->id);
         session()->put('checkout_affiliate_code', $affiliate->code);
 
-        return $affiliateRedirect->with('success', 'Affiliate code applied successfully.');
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'code' => $affiliate->code]);
+        }
+        return redirect()->to(route('checkout.index') . '#checkout-affiliate-section')->with('success', 'Affiliate code applied successfully.');
     }
 
     /**
      * Remove applied affiliate code on checkout
      */
-    public function removeCheckoutAffiliate()
+    public function removeCheckoutAffiliate(Request $request)
     {
         session()->forget(['checkout_affiliate_code_id', 'checkout_affiliate_code']);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true]);
+        }
         return redirect()->to(route('checkout.index') . '#checkout-affiliate-section')->with('success', 'Affiliate code removed.');
     }
 }

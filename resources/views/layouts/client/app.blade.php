@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
     @stack('styles')
 </head>
-<body class="@if(request()->routeIs('cart.index')) cart-page @endif @if(request()->routeIs('checkout.index')) checkout-page @endif @if(request()->routeIs('profile.index')) profile-page @endif">
+<body class="@if(request()->routeIs('cart.index')) cart-page @endif @if(request()->routeIs('checkout.index')) checkout-page @endif @if(request()->routeIs('profile.index') || request()->routeIs('profile.purchaseHistory')) profile-page @endif">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
@@ -41,7 +41,7 @@
                 </a>
             </div>
             @php
-                $isSimplifiedNav = request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('profile.index');
+                $isSimplifiedNav = request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('profile.index') || request()->routeIs('profile.purchaseHistory');
             @endphp
             <ul class="nav-menu">
                 <li class="nav-text-item"><a class="nav-text-link" href="{{ route('home') }}">Home</a></li>
@@ -76,6 +76,7 @@
                                 <a href="#" class="auth-btn auth-btn-account">Account <span class="dropdown-arrow">▼</span></a>
                                 <ul class="dropdown-menu">
                                     <li><a href="{{ route('profile.index') }}" class="dropdown-menu-item">Profile</a></li>
+                                    <li><a href="{{ route('profile.purchaseHistory') }}" class="dropdown-menu-item">Purchase History</a></li>
                                     <li>
                                         <form method="POST" action="{{ route('logout') }}" style="display: block; margin: 0; padding: 0; width: 100%;">
                                             @csrf
@@ -101,7 +102,7 @@
         @yield('content')
     </main>
 
-    @unless(request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('profile.index') || request()->routeIs('events.show'))
+    @unless(request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('profile.index') || request()->routeIs('profile.purchaseHistory') || request()->routeIs('events.show'))
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -169,6 +170,7 @@
                                 <button type="submit" class="newsletter-btn">SIGN UP</button>
                             </div>
                         </form>
+                        <img src="{{ asset('images/logo-footer.png') }}" alt="BINA Footer Logo" class="footer-newsletter-logo">
                     </div>
                 </div>
             </div>
