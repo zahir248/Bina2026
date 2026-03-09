@@ -1615,6 +1615,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         xhr.onerror = function() { callback(new Error('Network error')); };
+        xhr.withCredentials = true;
         xhr.send(JSON.stringify(data));
     }
 
@@ -1722,6 +1723,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (updateUrl && currentPaymentIntentId && cardCountry) {
                     return fetch(updateUrl, {
                         method: 'POST',
+                        credentials: 'same-origin',
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': config.csrfToken },
                         body: JSON.stringify({ payment_intent_id: currentPaymentIntentId, card_country: cardCountry, _token: config.csrfToken })
                     }).then(function(r) { return r.json(); }).then(function(data) {
@@ -1885,6 +1887,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 fd.append('affiliate_code', code);
                 fetch(applyUrl, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     body: fd,
                     headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
                 }).then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
@@ -1910,6 +1913,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 fd.append('_token', csrfToken);
                 fetch(removeUrl, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     body: fd,
                     headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
                 }).then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })

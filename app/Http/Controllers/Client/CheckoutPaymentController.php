@@ -287,7 +287,7 @@ class CheckoutPaymentController extends Controller
      */
     public function repayCreateIntent(Request $request, Order $order)
     {
-        if (!Auth::check() || $order->user_id !== Auth::id()) {
+        if (!Auth::check() || (int) $order->user_id !== (int) Auth::id()) {
             return response()->json(['error' => 'Unauthorized.'], 403);
         }
         if ($order->status !== 'pending') {

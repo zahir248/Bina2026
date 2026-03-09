@@ -234,7 +234,7 @@ class ProfileController extends Controller
      */
     public function orderModal(Order $order)
     {
-        if (!Auth::check() || $order->user_id !== Auth::id()) {
+        if (!Auth::check() || (int) $order->user_id !== (int) Auth::id()) {
             abort(403, 'Unauthorized.');
         }
 
@@ -248,7 +248,7 @@ class ProfileController extends Controller
      */
     public function cancelOrder(Request $request, Order $order)
     {
-        if (!Auth::check() || $order->user_id !== Auth::id()) {
+        if (!Auth::check() || (int) $order->user_id !== (int) Auth::id()) {
             abort(403, 'Unauthorized.');
         }
         if ($order->status !== 'pending') {
@@ -322,7 +322,7 @@ class ProfileController extends Controller
      */
     public function refundOrder(Request $request, Order $order)
     {
-        if (!Auth::check() || $order->user_id !== Auth::id()) {
+        if (!Auth::check() || (int) $order->user_id !== (int) Auth::id()) {
             abort(403, 'Unauthorized.');
         }
         if ($order->status !== 'paid') {
@@ -400,7 +400,7 @@ class ProfileController extends Controller
      */
     public function downloadReceipt(Order $order)
     {
-        if (!Auth::check() || $order->user_id !== Auth::id()) {
+        if (!Auth::check() || (int) $order->user_id !== (int) Auth::id()) {
             abort(403, 'Unauthorized.');
         }
         if (!in_array($order->status, ['paid', 'refunded'], true)) {
@@ -424,7 +424,7 @@ class ProfileController extends Controller
      */
     public function downloadQrCode(Order $order, int $index)
     {
-        if (!Auth::check() || $order->user_id !== Auth::id()) {
+        if (!Auth::check() || (int) $order->user_id !== (int) Auth::id()) {
             abort(403, 'Unauthorized.');
         }
         if (!in_array($order->status, ['paid', 'refunded'], true)) {

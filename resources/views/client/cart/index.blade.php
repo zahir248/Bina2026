@@ -757,6 +757,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     editCartText.textContent = 'Saving...';
                     fetch(cartQuantitiesForm.action, {
                         method: 'POST',
+                        credentials: 'same-origin',
                         body: formData,
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',

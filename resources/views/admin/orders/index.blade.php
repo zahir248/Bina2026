@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modalLoading.style.display = 'block';
         modalBodyContent.style.display = 'none';
         modalBodyContent.innerHTML = '';
-        fetch(modalUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } })
+        fetch(modalUrl, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } })
             .then(function(r) { return r.text(); })
             .then(function(html) {
                 modalLoading.style.display = 'none';

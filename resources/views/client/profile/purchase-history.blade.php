@@ -1230,7 +1230,7 @@ document.addEventListener('DOMContentLoaded', function() {
             contentEl.innerHTML = '';
             loadingEl.style.display = 'block';
             openModal();
-            fetch(modalUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } })
+            fetch(modalUrl, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' } })
                 .then(function(r) { return r.text(); })
                 .then(function(html) {
                     loadingEl.style.display = 'none';
@@ -1602,6 +1602,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         xhr.onerror = function() { callback(new Error('Network error')); };
+        xhr.withCredentials = true;
         xhr.send(JSON.stringify({ payment_method_type: method, _token: repayConfig.csrfToken }));
     }
 

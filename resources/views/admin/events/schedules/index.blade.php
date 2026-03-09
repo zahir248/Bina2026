@@ -313,7 +313,7 @@
                     scheduleRowIndex = 0;
 
                     // Load existing schedules
-                    fetch('{{ route("admin.events.schedules.get", ":id") }}'.replace(':id', eventId))
+                    fetch('{{ route("admin.events.schedules.get", ":id") }}'.replace(':id', eventId), { credentials: 'same-origin' })
                         .then(response => response.json())
                         .then(data => {
                             if (data.schedules && data.schedules.length > 0) {
