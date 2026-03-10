@@ -3,31 +3,50 @@
 @section('title', 'BINA')
 
 @section('content')
-    <!-- Hero Carousel Section -->
-    <section class="hero-carousel">
-        <button class="carousel-btn carousel-btn-left" aria-label="Previous slide"></button>
-        <div class="carousel-container">
-            <div class="hero-slide active">
-                <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=1920&h=400&fit=crop" alt="Concert Banner" class="hero-banner-image">
-            </div>
-            <div class="hero-slide">
-                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1920&h=400&fit=crop" alt="Festival Banner" class="hero-banner-image">
-            </div>
-            <div class="hero-slide">
-                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1920&h=400&fit=crop" alt="Music Event Banner" class="hero-banner-image">
-            </div>
-            <div class="hero-slide">
-                <img src="https://images.unsplash.com/photo-1478147427282-58a87a120781?w=1920&h=400&fit=crop" alt="Live Performance Banner" class="hero-banner-image">
-            </div>
+    <!-- Hero Section (single image) -->
+    <section class="hero-single" aria-label="Home banner">
+        <img src="{{ asset('images/hero-section.png') }}" alt="BINA Banner" class="hero-banner-image">
+        <div class="hero-single-content">
+            <img src="{{ asset('images/bina-logo.png') }}" alt="BINA Logo" class="hero-single-logo">
+            <h1 class="hero-single-title">Constructing The Future of Asean</h1>
+            <p class="hero-single-meta">
+                <span class="hero-single-meta-item">
+                    <i class="bi bi-calendar3" aria-hidden="true"></i>
+                    2026 Oct 28-30
+                </span>
+                <span class="hero-single-meta-item">
+                    <i class="bi bi-geo-alt-fill" aria-hidden="true"></i>
+                    MITEC, Kuala Lumpur
+                </span>
+            </p>
+            <a href="#" class="hero-single-watch-trailer" id="hero-watch-trailer-btn" aria-label="Watch trailer">
+                <span class="hero-single-watch-trailer-icon" aria-hidden="true">
+                    <i class="bi bi-play-fill"></i>
+                </span>
+                Watch Trailer
+            </a>
         </div>
-        <button class="carousel-btn carousel-btn-right" aria-label="Next slide"></button>
-        <div class="carousel-dots">
-            <span class="dot active" data-slide="0"></span>
-            <span class="dot" data-slide="1"></span>
-            <span class="dot" data-slide="2"></span>
-            <span class="dot" data-slide="3"></span>
+        <div class="hero-single-social">
+            <a href="https://www.facebook.com/cidbibsofficial/?locale=ms_MY" target="_blank" rel="noopener noreferrer" class="hero-single-social-btn" aria-label="Facebook" title="Facebook">
+                <i class="bi bi-facebook" aria-hidden="true"></i>
+            </a>
+            <a href="https://www.linkedin.com/company/cidbibsofficial/posts/?feedView=all" target="_blank" rel="noopener noreferrer" class="hero-single-social-btn" aria-label="LinkedIn" title="LinkedIn">
+                <i class="bi bi-linkedin" aria-hidden="true"></i>
+            </a>
         </div>
     </section>
+
+    <!-- Trailer Video Modal -->
+    <div class="modal-overlay hero-trailer-modal" id="hero-trailer-modal" aria-hidden="true" style="display: none;">
+        <div class="hero-trailer-modal-box" role="dialog" aria-modal="true" aria-label="Watch trailer video">
+            <button type="button" class="hero-trailer-modal-close" id="hero-trailer-modal-close" aria-label="Close modal">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+            <div class="hero-trailer-modal-video-wrap">
+                <iframe id="hero-trailer-iframe" src="" title="BINA Trailer" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
 
     <!-- Countdown Section -->
     <section class="countdown-section">
@@ -233,6 +252,49 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Hero trailer modal
+    (function() {
+        var trailerModal = document.getElementById('hero-trailer-modal');
+        var trailerBtn = document.getElementById('hero-watch-trailer-btn');
+        var trailerClose = document.getElementById('hero-trailer-modal-close');
+        var trailerIframe = document.getElementById('hero-trailer-iframe');
+        var trailerEmbedUrl = 'https://www.youtube.com/embed/vOYaOb8QgWc?autoplay=1';
+
+        function openTrailerModal() {
+            if (trailerIframe) trailerIframe.src = trailerEmbedUrl;
+            if (trailerModal) {
+                trailerModal.style.display = 'flex';
+                trailerModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeTrailerModal() {
+            if (trailerIframe) trailerIframe.src = '';
+            if (trailerModal) {
+                trailerModal.style.display = 'none';
+                trailerModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+        }
+
+        if (trailerBtn) {
+            trailerBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openTrailerModal();
+            });
+        }
+        if (trailerClose) trailerClose.addEventListener('click', closeTrailerModal);
+        if (trailerModal) {
+            trailerModal.addEventListener('click', function(e) {
+                if (e.target === trailerModal) closeTrailerModal();
+            });
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && trailerModal && trailerModal.style.display === 'flex') closeTrailerModal();
+        });
+    })();
+
     // Collapsible sidebars: restore state and attach toggles
     (function() {
         const layout = document.getElementById('content-layout');

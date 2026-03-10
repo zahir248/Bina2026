@@ -553,6 +553,238 @@ body {
     margin-top: 60px;
 }
 
+/* Hero Single (one image, no slides) - same dark/blur style as event hero */
+.hero-single {
+    position: relative;
+    background: var(--bg-lavender);
+    min-height: 400px;
+    overflow: hidden;
+    margin-bottom: 0;
+    margin-top: 60px;
+}
+
+.hero-single .hero-banner-image {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.5);
+}
+
+.hero-single::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+}
+
+.hero-single-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    padding: 1rem;
+    text-align: center;
+}
+
+.hero-single-logo {
+    width: min(160px, 48vw);
+    height: auto;
+    margin: 0 0 1.25rem;
+    filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.35));
+}
+
+.hero-single-title {
+    margin: 0 0 0.75rem;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+    .hero-single-title {
+        font-size: 2.25rem;
+    }
+}
+
+.hero-single-meta {
+    margin: 0;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+    letter-spacing: 0.08em;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+}
+
+.hero-single-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.hero-single-meta-item .bi {
+    font-size: 1.1em;
+    color: var(--primary-color);
+}
+
+.hero-single-watch-trailer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 9999px;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-single-watch-trailer:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.hero-single-watch-trailer-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    color: #000;
+    flex-shrink: 0;
+}
+
+.hero-single-watch-trailer-icon .bi {
+    font-size: 0.75rem;
+    margin-left: 2px;
+}
+
+.hero-single-social {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 1;
+}
+
+.hero-single-social-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.hero-single-social-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.8);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.hero-single-social-btn .bi {
+    font-size: 1.25rem;
+}
+
+/* Hero trailer video modal */
+.hero-trailer-modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.hero-trailer-modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    background: #000;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease;
+}
+
+.hero-trailer-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 2;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.hero-trailer-modal-close:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #000;
+}
+
+.hero-trailer-modal-video-wrap {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+}
+
+.hero-trailer-modal-video-wrap iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
 .carousel-container {
     position: relative;
     width: 100%;
