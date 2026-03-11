@@ -3,8 +3,10 @@
 @section('title', 'BINA')
 
 @section('content')
-<div class="auth-container">
-    <div class="auth-card">
+<div class="auth-container" style="position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+    <div style="position: absolute; inset: 0; background: url('{{ asset('images/hero-section.png') }}') center center / cover no-repeat; filter: brightness(0.5);"></div>
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4);"></div>
+    <div class="auth-card" style="position: relative; z-index: 1;">
         <a href="{{ route('login') }}" class="auth-back-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
