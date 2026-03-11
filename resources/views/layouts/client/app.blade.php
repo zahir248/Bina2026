@@ -46,7 +46,7 @@
             <ul class="nav-menu">
                 <li class="nav-text-item"><a class="nav-text-link" href="{{ route('home') }}">Home</a></li>
                 @unless($isSimplifiedNav)
-                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('about-bina') }}">About<br>BINA</a></li>
+                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('about-bina') }}">About</a></li>
                 <li class="nav-text-item"><a class="nav-text-link" href="{{ route('gallery') }}">Gallery</a></li>
                 <li class="nav-category-group">
                     <ul class="nav-category-list">
@@ -55,6 +55,9 @@
                         @endforeach
                     </ul>
                 </li>
+                <li class="nav-text-item nav-text-item--full"><a class="nav-text-link" href="{{ route('career-spotlight') }}">Career Spotlight<br>@ Bina</a></li>
+                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('ibs-home') }}">IBS<br>Home</a></li>
+                <li class="nav-text-item nav-text-item--full"><a class="nav-text-link" href="{{ route('nextgen-bina') }}">NextGen<br>@ Bina</a></li>
                 @endunless
                 @auth
                 <li class="nav-icon">

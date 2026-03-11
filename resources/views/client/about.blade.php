@@ -5,7 +5,7 @@
 @section('content')
     <!-- Hero Section (plain background image, same as gallery) -->
     <section class="hero-plain" aria-label="About BINA banner">
-        <h1 class="hero-plain-title">About BINA</h1>
+        <h1 class="hero-plain-title">About</h1>
     </section>
 
     <!-- About BINA Content - two columns: image left, text right -->
@@ -53,7 +53,7 @@
                         </div>
                         <p class="about-bina-showcase-card-text">Modular Thinkers invites TVET students to design sustainable, affordable township developments, promoting the next generation of smart modular living.</p>
                     </div>
-                    <div class="about-bina-showcase-card">
+                    <div class="about-bina-showcase-card" id="career-spotlight">
                         <div class="about-bina-showcase-logo-box">
                             <img src="{{ asset('images/bina-career-spotlight.png') }}" alt="CONSTRUCTION CAREER SPOTLIGHT featuring MYFutureJobs" class="about-bina-showcase-logo-img" loading="lazy">
                         </div>

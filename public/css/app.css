@@ -63,6 +63,12 @@ body {
     display: flex;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+/* Hide navbar when scrolling down, show when scrolling up */
+.navbar.navbar--hidden {
+    transform: translateY(-100%);
 }
 
 .navbar .container {
@@ -162,6 +168,18 @@ body {
     word-wrap: break-word;
     overflow-wrap: break-word;
     overflow: hidden;
+}
+
+/* Career Spotlight @ Bina: two lines like event category names */
+.nav-menu li.nav-text-item--full {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+}
+.nav-menu li.nav-text-item--full a.nav-text-link {
+    width: auto;
+    max-width: 26ch;
+    text-align: center;
 }
 
 .nav-menu li a.nav-category-link {
@@ -1122,6 +1140,346 @@ body {
     margin: 0 auto;
 }
 
+/* IBS Home: single column, no image */
+.ibs-home-layout {
+    grid-template-columns: 1fr;
+}
+
+.ibs-home-content .about-bina-text {
+    text-align: justify;
+}
+
+.ibs-home-content .about-bina-paragraph {
+    text-align: justify;
+}
+
+/* NextGen @ Bina: single column, no image */
+.nextgen-bina-page-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 2.5rem;
+    align-items: stretch;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nextgen-bina-main {
+    min-width: 0;
+}
+
+/* Allow sticky to work: content section and container must not clip (no overflow hidden between sticky and viewport) */
+.nextgen-bina-content,
+.nextgen-bina-content .container,
+.nextgen-bina-page-layout {
+    overflow: visible;
+}
+
+.nextgen-bina-sidebar {
+    align-self: start;
+}
+
+/* JS adds .is-sticky-fixed on scroll; unsticks when footer in view so sidebar never exceeds footer. No internal scroll. */
+.nextgen-bina-sticky-wrap.is-sticky-fixed {
+    position: fixed;
+    z-index: 100;
+    top: 5rem;
+    overflow: visible;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ma-card {
+    background: #fff;
+    border-radius: 1.25rem;
+    padding: 2rem 2rem 1.5rem 2rem;
+    box-shadow: 0 2px 12px rgba(80, 80, 120, 0.04);
+    color: #22223b;
+    transition: all 0.3s ease;
+}
+
+.ma-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.ma-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #22223b;
+    margin: 0 0 1.5rem;
+    border-bottom: 2px solid var(--primary-orange);
+    padding-bottom: 0.75rem;
+}
+
+.objectives-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.objectives-list li {
+    position: relative;
+    padding-left: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: #4b5563;
+    font-size: 1.08rem;
+    transition: transform 0.3s ease;
+}
+
+.objectives-list li:last-child {
+    margin-bottom: 0;
+}
+
+.objectives-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.35rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: linear-gradient(45deg, #ff9800, #ffb347);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.objectives-list li::after {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0.85rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border: 2px solid white;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+}
+
+.objectives-list li:hover {
+    transform: translateX(5px);
+}
+
+.objectives-list li:hover::before {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.objectives-list-heading {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.objectives-list-desc {
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+    line-height: 1.5;
+    color: #4b5563;
+}
+
+.nextgen-bina-layout {
+    grid-template-columns: 1fr;
+}
+
+.nextgen-bina-content .about-bina-text,
+.nextgen-bina-content .about-bina-paragraph {
+    text-align: justify;
+}
+
+.nextgen-bina-logo-block {
+    margin-bottom: 1.25rem;
+    text-align: center;
+}
+
+.nextgen-bina-logo-block .nextgen-bina-logo-img {
+    width: auto;
+    max-width: 340px;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.nextgen-bina-logo-block:hover .nextgen-bina-logo-img {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.nextgen-bina-content .about-bina-heading {
+    text-align: center;
+}
+
+.nextgen-bina-banner {
+    margin: 2rem 0;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.nextgen-bina-banner:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.nextgen-bina-banner-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: top;
+    transition: transform 0.3s ease;
+}
+
+.nextgen-bina-banner:hover .nextgen-bina-banner-img {
+    transform: translateY(-4px);
+}
+
+/* NextGen competition details (English & Malay) */
+.nextgen-bina-competition {
+    margin-top: 3rem;
+}
+
+.nextgen-bina-competition-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.nextgen-bina-poster-wrap {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.nextgen-bina-poster-wrap:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.nextgen-bina-poster-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: top;
+    transition: transform 0.3s ease;
+}
+
+.nextgen-bina-poster-wrap:hover .nextgen-bina-poster-img {
+    transform: translateY(-4px);
+}
+
+.nextgen-bina-register-center {
+    text-align: center;
+    margin-top: 1.5rem;
+    margin-bottom: 0;
+}
+
+/* NextGen Ready to Register section */
+.nextgen-bina-register-section {
+    margin-top: 3rem;
+    padding: 0 1.5rem;
+    text-align: center;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.nextgen-bina-register-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1rem;
+    line-height: 1.3;
+}
+
+.nextgen-bina-register-btn-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    color: #6b7280;
+    margin: 0 0 1rem;
+}
+
+.nextgen-bina-register-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--primary-orange);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding: 1rem 1.75rem;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.nextgen-bina-register-btn:hover {
+    background: var(--primary-dark, #e68900);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.nextgen-bina-register-btn i {
+    font-size: 1.125rem;
+}
+
+.nextgen-bina-register-note {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8125rem;
+    color: #9ca3af;
+    margin: 1rem 0 0;
+}
+
+.nextgen-bina-competition-register {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: var(--text-dark);
+    margin: 0 0 0.5rem;
+}
+
+.nextgen-bina-competition-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    color: var(--primary-orange);
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.nextgen-bina-competition-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .nextgen-bina-competition-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 992px) {
+    .nextgen-bina-page-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
 .about-bina-text {
     min-width: 0;
     text-align: right;
@@ -1211,6 +1569,934 @@ body {
 .about-bina-image-wrap:hover .about-bina-image {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     transform: translateY(-4px);
+}
+
+/* Career Spotlight @ Bina page */
+.career-spotlight-content {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.career-spotlight-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: stretch;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.career-spotlight-left {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.career-spotlight-logo-block {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.career-spotlight-logo-img {
+    max-width: 280px;
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.career-spotlight-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1.25rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: center;
+}
+
+.career-spotlight-paragraph {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--text-dark);
+    margin: 0 0 1.25rem;
+    text-align: justify;
+}
+
+.career-spotlight-diagram-img {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.career-spotlight-diagram-img .career-spotlight-img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 8px;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.career-spotlight-diagram-img:hover .career-spotlight-img {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.career-spotlight-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.career-spotlight-photo {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.career-spotlight-photo:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.career-spotlight-photo .career-spotlight-img {
+    transition: transform 0.3s ease;
+}
+
+.career-spotlight-photo:hover .career-spotlight-img {
+    transform: translateY(-4px);
+}
+
+.career-spotlight-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+}
+
+.career-spotlight-photo-top .career-spotlight-img {
+    aspect-ratio: 16 / 10;
+}
+
+.career-spotlight-photo-bottom .career-spotlight-img {
+    aspect-ratio: 16 / 10;
+}
+
+@media (max-width: 768px) {
+    .career-spotlight-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .career-spotlight-content {
+        padding: 2rem 0 3rem;
+    }
+
+    .career-spotlight-title {
+        font-size: 1.5rem;
+    }
+
+    .career-spotlight-right {
+        order: -1;
+    }
+}
+
+/* Career Spotlight - Objectives & Target Audiences section */
+.career-spotlight-objectives-section {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.career-spotlight-objectives-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: stretch;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.career-spotlight-objectives-col,
+.career-spotlight-audiences-col {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    min-height: 100%;
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.25s ease;
+    border: 2px solid transparent;
+}
+
+.career-spotlight-objectives-col:hover,
+.career-spotlight-audiences-col:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 152, 0, 0.28);
+}
+
+.career-spotlight-objectives-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0 0 1.5rem;
+    letter-spacing: 0.02em;
+}
+
+.career-spotlight-objectives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.career-spotlight-objective-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.career-spotlight-objective-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-orange);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.career-spotlight-objective-content {
+    min-width: 0;
+}
+
+.career-spotlight-objective-heading {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+}
+
+.career-spotlight-objective-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+    margin: 0;
+    text-align: left;
+    opacity: 0.9;
+}
+
+.career-spotlight-audiences-content {
+    margin: 0;
+}
+
+.career-spotlight-audiences-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.career-spotlight-audiences-subtitle:not(:first-of-type) {
+    margin-top: 1.25rem;
+}
+
+.career-spotlight-audiences-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--text-dark);
+    opacity: 0.9;
+}
+
+.career-spotlight-audiences-list li {
+    padding: 0.15rem 0;
+}
+
+@media (max-width: 768px) {
+    .career-spotlight-objectives-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .career-spotlight-objectives-section {
+        padding: 2rem 0 3rem;
+    }
+
+    .career-spotlight-objectives-col,
+    .career-spotlight-audiences-col {
+        padding: 1.5rem;
+    }
+}
+
+/* Career Spotlight - MITEC venue & stats section */
+.career-spotlight-mitec-section {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.career-spotlight-mitec-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.career-spotlight-mitec-left {
+    min-width: 0;
+    text-align: center;
+}
+
+.career-spotlight-mitec-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 0.75rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.career-spotlight-mitec-detail {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    color: var(--text-dark);
+    margin: 0 0 0.25rem;
+}
+
+.career-spotlight-mitec-detail:last-of-type {
+    margin-bottom: 1.5rem;
+}
+
+.career-spotlight-mitec-stats {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.career-spotlight-mitec-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #fff;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.25s ease;
+    border: 2px solid transparent;
+}
+
+.career-spotlight-mitec-stat:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 152, 0, 0.28);
+}
+
+.career-spotlight-mitec-stat-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--primary-orange);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.career-spotlight-mitec-stat-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.35rem 0.5rem;
+}
+
+.career-spotlight-mitec-stat-number {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.career-spotlight-mitec-stat-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.career-spotlight-mitec-right {
+    min-width: 0;
+}
+
+.career-spotlight-mitec-photo {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.career-spotlight-mitec-photo:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.career-spotlight-mitec-photo .career-spotlight-mitec-img {
+    transition: transform 0.3s ease;
+}
+
+.career-spotlight-mitec-photo:hover .career-spotlight-mitec-img {
+    transform: translateY(-4px);
+}
+
+.career-spotlight-mitec-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 4 / 3;
+}
+
+@media (max-width: 768px) {
+    .career-spotlight-mitec-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .career-spotlight-mitec-section {
+        padding: 2rem 0 3rem;
+    }
+
+    .career-spotlight-mitec-title {
+        font-size: 2rem;
+    }
+
+    .career-spotlight-mitec-right {
+        order: -1;
+    }
+}
+
+/* Career Spotlight - Features section */
+.career-spotlight-features-section {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.career-spotlight-features-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0 0 2.5rem;
+    letter-spacing: 0.02em;
+}
+
+.career-spotlight-features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.career-spotlight-feature-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.25s ease;
+    border: 2px solid transparent;
+}
+
+.career-spotlight-feature-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(255, 152, 0, 0.28);
+}
+
+.career-spotlight-feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    background: var(--primary-orange);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.career-spotlight-feature-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    margin: 0;
+}
+
+@media (max-width: 992px) {
+    .career-spotlight-features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .career-spotlight-features-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .career-spotlight-features-section {
+        padding: 2rem 0 3rem;
+    }
+
+    .career-spotlight-features-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Career Spotlight - Setting-up Pavilion & Components */
+.career-spotlight-pavilion-section {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.career-spotlight-pavilion-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: stretch;
+    max-width: 1200px;
+    margin: 0 auto 3rem;
+}
+
+.career-spotlight-pavilion-left {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.career-spotlight-pavilion-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1.25rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    text-align: center;
+}
+
+.career-spotlight-pavilion-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--text-dark);
+    margin: 0 0 1.25rem;
+    text-align: justify;
+}
+
+.career-spotlight-pavilion-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+.career-spotlight-pavilion-img-wrap {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.career-spotlight-pavilion-img-wrap:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.career-spotlight-pavilion-img-wrap .career-spotlight-pavilion-img {
+    transition: transform 0.3s ease;
+}
+
+.career-spotlight-pavilion-img-wrap:hover .career-spotlight-pavilion-img {
+    transform: translateY(-4px);
+}
+
+.career-spotlight-pavilion-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: top;
+}
+
+@media (max-width: 768px) {
+    .career-spotlight-pavilion-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .career-spotlight-pavilion-section {
+        padding: 2rem 0 3rem;
+    }
+
+    .career-spotlight-pavilion-title {
+        font-size: 1.5rem;
+    }
+
+    .career-spotlight-pavilion-right {
+        order: -1;
+    }
+}
+
+/* Career Spotlight - Pocket Talk section */
+.career-spotlight-pocket-section {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.career-spotlight-pocket-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.career-spotlight-pocket-left {
+    min-width: 0;
+}
+
+.career-spotlight-pocket-img-wrap {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.career-spotlight-pocket-img-wrap:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.career-spotlight-pocket-img-wrap .career-spotlight-pocket-img {
+    transition: transform 0.3s ease;
+}
+
+.career-spotlight-pocket-img-wrap:hover .career-spotlight-pocket-img {
+    transform: translateY(-4px);
+}
+
+.career-spotlight-pocket-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    vertical-align: top;
+}
+
+.career-spotlight-pocket-right {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.career-spotlight-pocket-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1.5rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+.career-spotlight-pocket-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.career-spotlight-pocket-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--text-dark);
+    text-align: justify;
+}
+
+.career-spotlight-pocket-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 6px;
+    height: 6px;
+    background: var(--primary-orange);
+    border-radius: 50%;
+}
+
+.career-spotlight-pocket-list li:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .career-spotlight-pocket-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .career-spotlight-pocket-section {
+        padding: 2rem 0 3rem;
+    }
+
+    .career-spotlight-pocket-title {
+        font-size: 1.5rem;
+    }
+
+    .career-spotlight-pocket-left {
+        order: -1;
+    }
+}
+
+/* Career Spotlight - Last Event Visual Highlights */
+.career-spotlight-highlights-section {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.career-spotlight-highlights-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0 0 2.5rem;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+}
+
+.career-spotlight-highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.career-spotlight-highlight-item {
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.career-spotlight-highlight-item:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.career-spotlight-highlight-item .career-spotlight-highlight-img {
+    transition: transform 0.3s ease;
+}
+
+.career-spotlight-highlight-item:hover .career-spotlight-highlight-img {
+    transform: translateY(-4px);
+}
+
+.career-spotlight-highlight-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+
+@media (max-width: 992px) {
+    .career-spotlight-highlights-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .career-spotlight-highlights-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .career-spotlight-highlights-section {
+        padding: 2rem 0 3rem;
+    }
+
+    .career-spotlight-highlights-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Career Spotlight - Collaboration Contribution & Benefits */
+.career-spotlight-benefits-section {
+    padding: 3rem 0 4rem;
+    background: var(--bg-light-grey);
+}
+
+.career-spotlight-benefits-main-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    margin: 0 0 0.5rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.career-spotlight-benefits-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    text-align: center;
+    margin: 0 0 2rem;
+}
+
+.career-spotlight-benefits-card {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.career-spotlight-benefits-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.career-spotlight-benefits-header-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 48px;
+}
+
+.career-spotlight-benefits-col-header {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    padding: 0.875rem 1rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.career-spotlight-benefits-col-header:first-child {
+    background: var(--primary-orange);
+    color: #fff;
+    justify-content: center;
+    text-align: center;
+}
+
+.career-spotlight-benefits-desc-header {
+    background: #fff;
+    color: var(--text-dark);
+    justify-content: center;
+    text-align: center;
+}
+
+.career-spotlight-benefits-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    align-items: stretch;
+    gap: 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+.career-spotlight-benefit-tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    background: var(--primary-orange);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding: 0.75rem 1rem;
+    line-height: 1.3;
+    text-align: center;
+}
+
+.career-spotlight-benefit-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0.75rem 1.25rem;
+    text-align: justify;
+}
+
+@media (max-width: 768px) {
+    .career-spotlight-benefits-header-row,
+    .career-spotlight-benefits-row {
+        grid-template-columns: 1fr;
+    }
+
+    .career-spotlight-benefits-col-header:first-child,
+    .career-spotlight-benefit-tag {
+        border-radius: 0;
+    }
+
+    .career-spotlight-benefits-section {
+        padding: 2rem 0 3rem;
+    }
+
+    .career-spotlight-benefits-main-title {
+        font-size: 1.5rem;
+    }
 }
 
 /* Summary of BINA 2025 - two platforms */

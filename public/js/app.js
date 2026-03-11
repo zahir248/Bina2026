@@ -1,3 +1,42 @@
+// Navbar: hide on scroll down, show on scroll up
+(function() {
+    var lastScrollY = 0;
+    var scrollThreshold = 60;
+    var ticking = false;
+
+    function updateNavbar() {
+        var navbar = document.querySelector('.navbar');
+        if (!navbar) return;
+        var currentScrollY = window.scrollY || window.pageYOffset;
+        if (currentScrollY <= scrollThreshold) {
+            navbar.classList.remove('navbar--hidden');
+        } else if (currentScrollY > lastScrollY) {
+            navbar.classList.add('navbar--hidden');
+        } else {
+            navbar.classList.remove('navbar--hidden');
+        }
+        lastScrollY = currentScrollY;
+        ticking = false;
+    }
+
+    function onScroll() {
+        if (!ticking) {
+            requestAnimationFrame(updateNavbar);
+            ticking = true;
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            lastScrollY = window.scrollY || window.pageYOffset;
+            window.addEventListener('scroll', onScroll, { passive: true });
+        });
+    } else {
+        lastScrollY = window.scrollY || window.pageYOffset;
+        window.addEventListener('scroll', onScroll, { passive: true });
+    }
+})();
+
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {

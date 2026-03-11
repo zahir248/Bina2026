@@ -45,6 +45,18 @@ Route::get('/about-bina', function () {
     return view('client.about');
 })->name('about-bina');
 
+Route::get('/career-spotlight', function () {
+    return view('client.career-spotlight');
+})->name('career-spotlight');
+
+Route::get('/ibs-home', function () {
+    return view('client.ibs-home');
+})->name('ibs-home');
+
+Route::get('/nextgen-bina', function () {
+    return view('client.nextgen-bina');
+})->name('nextgen-bina');
+
 Route::get('/event/{slug}', [ClientEventController::class, 'show'])->name('events.show');
 
 // Cart Routes (specific paths before /cart/{id} to avoid 404)
