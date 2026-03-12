@@ -216,6 +216,85 @@
                         </article>
                     </div>
                 </section>
+
+                <!-- Our Official Partners -->
+                <section class="official-partners-section" aria-labelledby="official-partners-title">
+                    <h2 id="official-partners-title" class="official-partners-title">SPONSORS & PARTNERS</h2>
+                    <p class="official-partners-subtitle">OUR OFFICIAL PARTNERS</p>
+                    <p class="official-partners-lead">Now, it's your turn to be part of something bigger! Join us at BINA 2025 and be a driving force in shaping the future of ASEAN's construction industry.</p>
+                    <p class="official-partners-lead">Together, let's innovate, collaborate, and build a smarter, more sustainable future! Partner with us. Lead the change. Construct the future!</p>
+                    <div class="support-by">
+                        <h3 class="support-by-title">SUPPORT BY</h3>
+                        <div class="support-by-logos">
+                            <div class="support-by-card">
+                                <img src="{{ asset('images/partner2.png') }}" alt="Partner" class="support-by-logo">
+                            </div>
+                            <div class="support-by-card">
+                                <img src="{{ asset('images/partner3.png') }}" alt="Partner" class="support-by-logo">
+                            </div>
+                            <div class="support-by-card">
+                                <img src="{{ asset('images/partner4.png') }}" alt="Partner" class="support-by-logo">
+                            </div>
+                            <div class="support-by-card">
+                                <img src="{{ asset('images/partner7.png') }}" alt="Partner" class="support-by-logo">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="platinum-partner">
+                        <h3 class="platinum-partner-title">PLATINUM PARTNER</h3>
+                        <div class="platinum-partner-logos">
+                            <div class="platinum-partner-card">
+                                <img src="{{ asset('images/partner100.png') }}" alt="SIBS" class="platinum-partner-logo">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="community-partners">
+                        <h3 class="community-partners-title">COMMUNITY PARTNERS</h3>
+                        <div class="community-partners-logos">
+                            <div class="community-partners-card">
+                                <img src="{{ asset('images/partner6.png') }}" alt="MGB - Value Driven Innovation" class="community-partners-logo">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="impact-partners">
+                        <h3 class="impact-partners-title">IMPACT PARTNER</h3>
+                        <div class="impact-partners-logos">
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner13.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner14.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner15.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner16.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner17.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner18.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner19.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner20.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner21.jpeg') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner22.jpeg') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner23.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner24.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                            <div class="impact-partners-card"><img src="{{ asset('images/partner25.png') }}" alt="Partner" class="impact-partners-logo"></div>
+                        </div>
+                    </div>
+                    <div class="partner-categories-row">
+                        <div class="partner-category">
+                            <h3 class="partner-category-title">EVENT PARTNER</h3>
+                            <div class="partner-category-card">
+                                <img src="{{ asset('images/partner10.png') }}" alt="ACSM SON BHD" class="partner-category-logo">
+                            </div>
+                        </div>
+                        <div class="partner-category">
+                            <h3 class="partner-category-title">MEDIA & LOGISTIC PARTNER</h3>
+                            <div class="partner-category-card">
+                                <img src="{{ asset('images/partner11.png') }}" alt="DORSETT HARTAMAS" class="partner-category-logo">
+                            </div>
+                        </div>
+                        <div class="partner-category">
+                            <h3 class="partner-category-title">AFFILIATE PARTNER</h3>
+                            <div class="partner-category-card">
+                                <img src="{{ asset('images/partner12.png') }}" alt="Partner" class="partner-category-logo">
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </main>
 
             <!-- Right Sidebar - Calendar -->
