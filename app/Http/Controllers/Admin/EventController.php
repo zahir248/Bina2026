@@ -65,6 +65,16 @@ class EventController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'content_before_tickets' => ['nullable', 'string'],
+            'content_cards' => ['nullable', 'array'],
+            'content_cards.*.title' => ['nullable', 'string', 'max:255'],
+            'content_cards.*.description' => ['nullable', 'string'],
+            'content_cards.*.icon_path' => ['nullable', 'string', 'max:500'],
+            'content_cards_heading' => ['nullable', 'string', 'max:255'],
+            'content_cards_subheading' => ['nullable', 'string', 'max:500'],
+            'content_list_heading' => ['nullable', 'string', 'max:255'],
+            'content_list_items' => ['nullable', 'array'],
+            'content_list_items.*' => ['nullable', 'string', 'max:1000'],
             'event_category_id' => ['required', 'exists:event_categories,id'],
             'location' => ['required', 'string', 'max:255'],
             'google_maps_address' => ['nullable', 'string'],
@@ -108,9 +118,17 @@ class EventController extends Controller
             $images = !empty($imagePaths) ? $imagePaths : null;
         }
 
+        $contentCards = $this->normalizeContentCards($request->content_cards);
+
         Event::create([
             'name' => $request->name,
             'description' => $request->description,
+            'content_before_tickets' => $request->content_before_tickets,
+            'content_cards' => $contentCards,
+            'content_cards_heading' => $request->content_cards_heading,
+            'content_cards_subheading' => $request->content_cards_subheading,
+            'content_list_heading' => $request->content_list_heading,
+            'content_list_items' => $this->normalizeContentListItems($request->content_list_items),
             'event_category_id' => $request->event_category_id,
             'location' => $request->location,
             'google_maps_address' => $request->google_maps_address,
@@ -137,6 +155,16 @@ class EventController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'content_before_tickets' => ['nullable', 'string'],
+            'content_cards' => ['nullable', 'array'],
+            'content_cards.*.title' => ['nullable', 'string', 'max:255'],
+            'content_cards.*.description' => ['nullable', 'string'],
+            'content_cards.*.icon_path' => ['nullable', 'string', 'max:500'],
+            'content_cards_heading' => ['nullable', 'string', 'max:255'],
+            'content_cards_subheading' => ['nullable', 'string', 'max:500'],
+            'content_list_heading' => ['nullable', 'string', 'max:255'],
+            'content_list_items' => ['nullable', 'array'],
+            'content_list_items.*' => ['nullable', 'string', 'max:1000'],
             'event_category_id' => ['required', 'exists:event_categories,id'],
             'location' => ['required', 'string', 'max:255'],
             'google_maps_address' => ['nullable', 'string'],
@@ -173,6 +201,12 @@ class EventController extends Controller
         $updateData = [
             'name' => $request->name,
             'description' => $request->description,
+            'content_before_tickets' => $request->content_before_tickets,
+            'content_cards' => $this->normalizeContentCards($request->content_cards),
+            'content_cards_heading' => $request->content_cards_heading,
+            'content_cards_subheading' => $request->content_cards_subheading,
+            'content_list_heading' => $request->content_list_heading,
+            'content_list_items' => $this->normalizeContentListItems($request->content_list_items),
             'event_category_id' => $request->event_category_id,
             'location' => $request->location,
             'google_maps_address' => $request->google_maps_address,
@@ -227,6 +261,77 @@ class EventController extends Controller
         $event->update($updateData);
 
         return redirect()->route('admin.events.index')->with('success', 'Event updated successfully!');
+    }
+
+    /**
+     * Build content_cards array for storage. Keeps only cards with at least title or description.
+     */
+    private function normalizeContentCards(?array $cards): ?array
+    {
+        if (empty($cards) || !is_array($cards)) {
+            return null;
+        }
+        $out = [];
+        foreach ($cards as $card) {
+            if (!is_array($card)) {
+                continue;
+            }
+            $title = isset($card['title']) ? trim((string) $card['title']) : '';
+            $description = isset($card['description']) ? trim((string) $card['description']) : '';
+            $icon = isset($card['icon_path']) ? trim((string) $card['icon_path']) : '';
+            if ($title === '' && $description === '') {
+                continue;
+            }
+            $out[] = [
+                'icon' => $icon !== '' ? $icon : null,
+                'title' => $title !== '' ? $title : null,
+                'description' => $description !== '' ? $description : null,
+            ];
+        }
+        return empty($out) ? null : $out;
+    }
+
+    /**
+     * Build content_list_items array for storage (non-empty strings only).
+     */
+    private function normalizeContentListItems(?array $items): ?array
+    {
+        if (empty($items) || !is_array($items)) {
+            return null;
+        }
+        $out = [];
+        foreach ($items as $item) {
+            $trimmed = trim((string) $item);
+            if ($trimmed !== '') {
+                $out[] = $trimmed;
+            }
+        }
+        return empty($out) ? null : $out;
+    }
+
+    /**
+     * Upload an image for the "content before tickets" rich content area.
+     * Returns JSON with the URL to use in <img src="...">.
+     */
+    public function uploadContentImage(Request $request)
+    {
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:jpeg,jpg,png,gif,webp', 'max:5120'],
+        ], [
+            'image.required' => 'Please select an image.',
+            'image.image' => 'The file must be an image.',
+            'image.mimes' => 'Image must be jpeg, jpg, png, gif, or webp.',
+            'image.max' => 'Image must not exceed 5MB.',
+        ]);
+
+        $path = $request->file('image')->store('events/content-images', 'public');
+        $url = storage_asset($path);
+
+        return response()->json(['url' => $url, 'path' => $path]);
     }
 
     public function destroy($id)

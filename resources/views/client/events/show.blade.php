@@ -163,6 +163,58 @@
                         </div>
                     </div>
 
+                    @if(!empty($event['content_before_tickets']))
+                    <div class="event-middle-content">
+                        <div class="event-middle-content-inner">
+                            {!! $event['content_before_tickets'] !!}
+                        </div>
+                    </div>
+                    @endif
+
+                    @if(!empty($event['content_cards']) && count($event['content_cards']) > 0)
+                    <div class="event-cards-section">
+                        @if(!empty($event['content_cards_heading']) || !empty($event['content_cards_subheading']))
+                        <div class="event-cards-header">
+                            @if(!empty($event['content_cards_heading']))
+                            <h2 class="event-cards-heading">{{ $event['content_cards_heading'] }}</h2>
+                            @endif
+                            @if(!empty($event['content_cards_subheading']))
+                            <p class="event-cards-subheading">{{ $event['content_cards_subheading'] }}</p>
+                            @endif
+                        </div>
+                        @endif
+                        <div class="event-cards-grid">
+                            @foreach($event['content_cards'] as $card)
+                            <div class="event-content-card">
+                                @if(!empty($card['title']))
+                                <h3 class="event-content-card-title">{{ $card['title'] }}</h3>
+                                @endif
+                                @if(!empty($card['description']))
+                                <p class="event-content-card-description">{{ $card['description'] }}</p>
+                                @endif
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    @if(!empty($event['content_list_heading']) || (!empty($event['content_list_items']) && count($event['content_list_items']) > 0))
+                    <div class="event-content-list-section">
+                        <div class="event-content-list-inner">
+                            @if(!empty($event['content_list_heading']))
+                            <h2 class="event-content-list-heading">{{ $event['content_list_heading'] }}</h2>
+                            @endif
+                            @if(!empty($event['content_list_items']) && count($event['content_list_items']) > 0)
+                            <ul class="event-content-list">
+                                @foreach($event['content_list_items'] as $item)
+                                <li>{{ $item }}</li>
+                                @endforeach
+                            </ul>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+
                     <!-- Tickets List (Cards) -->
                     <div class="event-tickets-section" id="ticket-information-section">
                         <div class="event-tickets-inner">
@@ -680,6 +732,17 @@ function closeShareLocationModal() {
 
 // Carousel functionality for poster section
 document.addEventListener('DOMContentLoaded', function() {
+    // Force justify paragraphs in inserted content (overrides pasted inline styles)
+    const middleContent = document.querySelector('.event-middle-content-inner');
+    if (middleContent) {
+        middleContent.querySelectorAll('p').forEach(function(p) {
+            p.style.textAlign = 'center';
+        });
+    }
+    document.querySelectorAll('.event-content-card-description').forEach(function(p) {
+        p.style.textAlign = 'center';
+    });
+
     // Close modal when clicking outside
     const modal = document.getElementById('shareLocationModal');
     if (modal) {

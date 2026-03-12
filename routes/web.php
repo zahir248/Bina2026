@@ -129,6 +129,7 @@ Route::middleware(['prevent_guest_admin_when_not_maintenance', 'auth'])->prefix(
         // Events
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
+        Route::post('/upload-content-image', [EventController::class, 'uploadContentImage'])->name('upload-content-image');
         Route::put('/{id}', [EventController::class, 'update'])->name('update');
         Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
         

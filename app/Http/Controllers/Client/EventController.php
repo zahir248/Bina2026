@@ -230,6 +230,18 @@ class EventController extends Controller
             'google_maps_address' => $event->google_maps_address,
             'waze_location_address' => $event->waze_location_address,
             'description' => $event->description,
+            'content_before_tickets' => $event->content_before_tickets,
+            'content_cards_heading' => $event->content_cards_heading,
+            'content_cards_subheading' => $event->content_cards_subheading,
+            'content_list_heading' => $event->content_list_heading,
+            'content_list_items' => $event->content_list_items ?? [],
+            'content_cards' => collect($event->content_cards ?? [])->map(function ($card) {
+                return [
+                    'icon' => !empty($card['icon']) ? storage_asset($card['icon']) : null,
+                    'title' => $card['title'] ?? '',
+                    'description' => $card['description'] ?? '',
+                ];
+            })->values()->all(),
             'price' => $minPrice ? 'RM ' . number_format($minPrice, 2) : 'Price TBA',
             'ticket_stock' => $event->ticket_stock ?? null,
             'images' => $images,

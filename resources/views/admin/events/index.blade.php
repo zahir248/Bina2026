@@ -58,6 +58,16 @@
         text-align: center !important;
         vertical-align: middle !important;
     }
+
+    /* Content cards grid: title and description side by side */
+    .content-card-row .content-card-title-input {
+        flex: 0 0 180px;
+        min-width: 140px;
+    }
+    .content-card-row .content-card-desc-input {
+        flex: 1 1 200px;
+        min-width: 180px;
+    }
 </style>
 @endpush
 
@@ -173,7 +183,13 @@
                                                     data-end-datetime="{{ $event->end_datetime->format('Y-m-d\TH:i') }}"
                                                     data-ticket-stock="{{ $event->ticket_stock ?? '' }}"
                                                     data-images="{{ is_array($event->images) ? json_encode($event->images) : '[]' }}"
-                                                    data-status="{{ $event->status }}">
+                                                    data-status="{{ $event->status }}"
+                                                    data-content-before-tickets="{{ base64_encode($event->content_before_tickets ?? '') }}"
+                                                    data-content-cards="{{ base64_encode(json_encode($event->content_cards ?? [])) }}"
+                                                    data-content-cards-heading="{{ e($event->content_cards_heading ?? '') }}"
+                                                    data-content-cards-subheading="{{ e($event->content_cards_subheading ?? '') }}"
+                                                    data-content-list-heading="{{ e($event->content_list_heading ?? '') }}"
+                                                    data-content-list-items="{{ base64_encode(json_encode($event->content_list_items ?? [])) }}">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                         @endif
@@ -256,6 +272,55 @@
                             @error('description', 'create')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+                        
+                        <div class="mb-2">
+                            <label for="create_content_before_tickets" class="form-label">Content before ticket section</label>
+                            <div class="d-flex gap-2 align-items-start mb-1">
+                                <textarea class="form-control form-control-sm @error('content_before_tickets', 'create') is-invalid @enderror flex-grow-1" 
+                                          id="create_content_before_tickets" 
+                                          name="content_before_tickets" 
+                                          rows="4" 
+                                          placeholder="Optional: HTML and images. Shown centered between event info and ticket section. Use the button below to upload images.">{{ old('content_before_tickets') }}</textarea>
+                                <div class="d-flex flex-column gap-1">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="create_upload_content_image_btn" title="Upload image">
+                                        Upload image
+                                    </button>
+                                    <input type="file" id="create_content_image_input" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="d-none">
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Shown on the event page between the event info and ticket section. HTML supported. Upload images to insert them.</small>
+                            @error('content_before_tickets', 'create')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Content cards grid</label>
+                            <small class="form-text text-muted d-block mb-2">Optional header and subheader appear above the cards on the event page.</small>
+                            <div class="row mb-2">
+                                <div class="col-12 mb-1">
+                                    <input type="text" class="form-control form-control-sm" id="create_content_cards_heading" name="content_cards_heading" value="{{ old('content_cards_heading') }}" placeholder="Section heading (e.g. Explore Our Technology Categories)">
+                                </div>
+                                <div class="col-12">
+                                    <input type="text" class="form-control form-control-sm" id="create_content_cards_subheading" name="content_cards_subheading" value="{{ old('content_cards_subheading') }}" placeholder="Subheading (e.g. Discover the future of construction and design...)">
+                                </div>
+                            </div>
+                            <small class="form-text text-muted d-block mb-2">Add cards with title and description (shown in a grid above the ticket section).</small>
+                            <div id="create_content_cards_rows"></div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="create_add_card_btn">
+                                <i class="bi bi-plus-lg"></i> Add card
+                            </button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Important points / list section</label>
+                            <small class="form-text text-muted d-block mb-2">Optional heading and bullet list shown below the content cards (e.g. "IMPORTANT POINTS IN THIS SESSION :").</small>
+                            <input type="text" class="form-control form-control-sm mb-2" id="create_content_list_heading" name="content_list_heading" value="{{ old('content_list_heading') }}" placeholder="Section heading (e.g. IMPORTANT POINTS IN THIS SESSION :)">
+                            <div id="create_content_list_rows"></div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="create_add_list_item_btn">
+                                <i class="bi bi-plus-lg"></i> Add list item
+                            </button>
                         </div>
                         
                         <div class="mb-2">
@@ -419,6 +484,55 @@
                             @error('description', 'edit')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+                        
+                        <div class="mb-2">
+                            <label for="edit_content_before_tickets" class="form-label">Content before ticket section</label>
+                            <div class="d-flex gap-2 align-items-start mb-1">
+                                <textarea class="form-control form-control-sm @error('content_before_tickets', 'edit') is-invalid @enderror flex-grow-1" 
+                                          id="edit_content_before_tickets" 
+                                          name="content_before_tickets" 
+                                          rows="4" 
+                                          placeholder="Optional: HTML and images. Shown centered between event info and ticket section. Use the button below to upload images."></textarea>
+                                <div class="d-flex flex-column gap-1">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="edit_upload_content_image_btn" title="Upload image">
+                                        Upload image
+                                    </button>
+                                    <input type="file" id="edit_content_image_input" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" class="d-none">
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">Shown on the event page between the event info and ticket section. HTML supported. Upload images to insert them.</small>
+                            @error('content_before_tickets', 'edit')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Content cards grid</label>
+                            <small class="form-text text-muted d-block mb-2">Optional header and subheader appear above the cards on the event page.</small>
+                            <div class="row mb-2">
+                                <div class="col-12 mb-1">
+                                    <input type="text" class="form-control form-control-sm" id="edit_content_cards_heading" name="content_cards_heading" placeholder="Section heading">
+                                </div>
+                                <div class="col-12">
+                                    <input type="text" class="form-control form-control-sm" id="edit_content_cards_subheading" name="content_cards_subheading" placeholder="Subheading">
+                                </div>
+                            </div>
+                            <small class="form-text text-muted d-block mb-2">Add cards with title and description (shown in a grid above the ticket section).</small>
+                            <div id="edit_content_cards_rows"></div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="edit_add_card_btn">
+                                <i class="bi bi-plus-lg"></i> Add card
+                            </button>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Important points / list section</label>
+                            <small class="form-text text-muted d-block mb-2">Optional heading and bullet list shown below the content cards.</small>
+                            <input type="text" class="form-control form-control-sm mb-2" id="edit_content_list_heading" name="content_list_heading" placeholder="Section heading">
+                            <div id="edit_content_list_rows"></div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="edit_add_list_item_btn">
+                                <i class="bi bi-plus-lg"></i> Add list item
+                            </button>
                         </div>
                         
                         <div class="mb-2">
@@ -865,7 +979,193 @@
                 }
             }
         };
-        
+
+        // Content-before-tickets image upload (create & edit)
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadUrl = '{{ route("admin.events.upload-content-image") }}';
+            const csrfToken = document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : '';
+
+            function setupContentImageUpload(btnId, inputId, textareaId) {
+                const btn = document.getElementById(btnId);
+                const input = document.getElementById(inputId);
+                const textarea = document.getElementById(textareaId);
+                if (!btn || !input || !textarea) return;
+
+                btn.addEventListener('click', function() { input.click(); });
+
+                input.addEventListener('change', function() {
+                    const file = this.files[0];
+                    if (!file) return;
+
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('_token', csrfToken);
+
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading...';
+
+                    fetch(uploadUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(function(res) {
+                        return res.json().then(function(data) {
+                            if (!res.ok) {
+                                var err = new Error(data.message || data.error || 'Upload failed.');
+                                err.data = data;
+                                err.status = res.status;
+                                throw err;
+                            }
+                            return data;
+                        });
+                    })
+                    .then(function(data) {
+                        if (data.url) {
+                            const imgTag = '<img src="' + data.url + '" alt="">';
+                            const start = textarea.selectionStart, end = textarea.selectionEnd;
+                            const text = textarea.value;
+                            const before = text.substring(0, start), after = text.substring(end);
+                            textarea.value = before + imgTag + after;
+                            textarea.selectionStart = textarea.selectionEnd = start + imgTag.length;
+                            textarea.focus();
+                        }
+                    })
+                    .catch(function(err) {
+                        var msg = 'Upload failed. Please try again.';
+                        if (err.data && err.data.errors && typeof err.data.errors === 'object') {
+                            var firstKey = Object.keys(err.data.errors)[0];
+                            if (firstKey) msg = err.data.errors[firstKey][0] || msg;
+                        } else if (err.message) msg = err.message;
+                        alert(msg);
+                    })
+                    .finally(function() {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Upload image';
+                        input.value = '';
+                    });
+                });
+            }
+
+            setupContentImageUpload('create_upload_content_image_btn', 'create_content_image_input', 'create_content_before_tickets');
+            setupContentImageUpload('edit_upload_content_image_btn', 'edit_content_image_input', 'edit_content_before_tickets');
+        });
+
+        // Content cards grid (create + edit)
+        (function() {
+            function cardRowHtml(index, cardData) {
+                cardData = cardData || {};
+                var title = (cardData.title || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                var desc = (cardData.description || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return '<div class="content-card-row mb-2 p-2 border rounded d-flex flex-wrap gap-2 align-items-start" data-index="' + index + '">' +
+                    '<input type="text" class="form-control form-control-sm content-card-title-input" name="content_cards[' + index + '][title]" placeholder="Card title" value="' + title + '">' +
+                    '<textarea class="form-control form-control-sm content-card-desc-input" name="content_cards[' + index + '][description]" rows="2" placeholder="Description">' + desc + '</textarea>' +
+                    '<button type="button" class="btn btn-sm btn-outline-danger card-remove-btn flex-shrink-0" title="Remove"><i class="bi bi-trash"></i></button>' +
+                    '</div>';
+            }
+
+            function nextCreateIndex() {
+                var rows = document.querySelectorAll('#create_content_cards_rows .content-card-row');
+                return rows.length;
+            }
+            function nextEditIndex() {
+                var rows = document.querySelectorAll('#edit_content_cards_rows .content-card-row');
+                return rows.length;
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var createRows = document.getElementById('create_content_cards_rows');
+                var editRows = document.getElementById('edit_content_cards_rows');
+                var createAddBtn = document.getElementById('create_add_card_btn');
+                var editAddBtn = document.getElementById('edit_add_card_btn');
+
+                if (createAddBtn && createRows) {
+                    createAddBtn.addEventListener('click', function() {
+                        var idx = nextCreateIndex();
+                        createRows.insertAdjacentHTML('beforeend', cardRowHtml(idx, {}));
+                    });
+                }
+                if (editAddBtn && editRows) {
+                    editAddBtn.addEventListener('click', function() {
+                        var idx = nextEditIndex();
+                        editRows.insertAdjacentHTML('beforeend', cardRowHtml(idx, {}));
+                    });
+                }
+
+                createRows && createRows.addEventListener('click', function(e) {
+                    var removeBtn = e.target.closest('.card-remove-btn');
+                    if (removeBtn) removeBtn.closest('.content-card-row').remove();
+                });
+                editRows && editRows.addEventListener('click', function(e) {
+                    var removeBtn = e.target.closest('.card-remove-btn');
+                    if (removeBtn) removeBtn.closest('.content-card-row').remove();
+                });
+
+                var editModal = document.getElementById('editEventModal');
+                if (editModal && editRows) {
+                    editModal.addEventListener('show.bs.modal', function(event) {
+                        var button = event.relatedTarget;
+                        if (!button) return;
+                        var cardsAttr = button.getAttribute('data-content-cards') || '';
+                        editRows.innerHTML = '';
+                        try {
+                            var cards = cardsAttr ? JSON.parse(atob(cardsAttr)) : [];
+                            if (Array.isArray(cards)) {
+                                cards.forEach(function(card, i) {
+                                    editRows.insertAdjacentHTML('beforeend', cardRowHtml(i, {
+                                        title: card.title || '',
+                                        description: card.description || ''
+                                    }));
+                                });
+                            }
+                        } catch (err) {}
+});
+                }
+            });
+        })();
+
+        // Important points / list section (create + edit)
+        document.addEventListener('DOMContentLoaded', function() {
+            function listItemRowHtml(index, value) {
+                value = (value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return '<div class="content-list-item-row mb-1 d-flex gap-1 align-items-center">' +
+                    '<input type="text" class="form-control form-control-sm flex-grow-1" name="content_list_items[' + index + ']" value="' + value + '" placeholder="List item">' +
+                    '<button type="button" class="btn btn-sm btn-outline-danger list-item-remove-btn"><i class="bi bi-trash"></i></button>' +
+                    '</div>';
+            }
+            function nextListIndex(containerId) {
+                var container = document.getElementById(containerId);
+                return container ? container.querySelectorAll('.content-list-item-row').length : 0;
+            }
+            var createListRows = document.getElementById('create_content_list_rows');
+            var editListRows = document.getElementById('edit_content_list_rows');
+            var createAddListBtn = document.getElementById('create_add_list_item_btn');
+            var editAddListBtn = document.getElementById('edit_add_list_item_btn');
+            if (createAddListBtn && createListRows) {
+                createAddListBtn.addEventListener('click', function() {
+                    var idx = nextListIndex('create_content_list_rows');
+                    createListRows.insertAdjacentHTML('beforeend', listItemRowHtml(idx, ''));
+                });
+            }
+            if (editAddListBtn && editListRows) {
+                editAddListBtn.addEventListener('click', function() {
+                    var idx = nextListIndex('edit_content_list_rows');
+                    editListRows.insertAdjacentHTML('beforeend', listItemRowHtml(idx, ''));
+                });
+            }
+            createListRows && createListRows.addEventListener('click', function(e) {
+                var btn = e.target.closest('.list-item-remove-btn');
+                if (btn) btn.closest('.content-list-item-row').remove();
+            });
+            editListRows && editListRows.addEventListener('click', function(e) {
+                var btn = e.target.closest('.list-item-remove-btn');
+                if (btn) btn.closest('.content-list-item-row').remove();
+            });
+        });
+
         // Real-time filter functionality
         document.addEventListener('DOMContentLoaded', function() {
             const filterForm = document.getElementById('filterForm');
@@ -976,6 +1276,28 @@
 
                     document.getElementById('edit_name').value = name || '';
                     document.getElementById('edit_description').value = description || '';
+                    const contentBeforeTicketsAttr = button.getAttribute('data-content-before-tickets') || '';
+                    try {
+                        document.getElementById('edit_content_before_tickets').value = contentBeforeTicketsAttr ? atob(contentBeforeTicketsAttr) : '';
+                    } catch (e) {
+                        document.getElementById('edit_content_before_tickets').value = '';
+                    }
+                    document.getElementById('edit_content_cards_heading').value = button.getAttribute('data-content-cards-heading') || '';
+                    document.getElementById('edit_content_cards_subheading').value = button.getAttribute('data-content-cards-subheading') || '';
+                    var listHeading = button.getAttribute('data-content-list-heading') || '';
+                    document.getElementById('edit_content_list_heading').value = listHeading;
+                    var listItemsAttr = button.getAttribute('data-content-list-items') || '';
+                    var editListRows = document.getElementById('edit_content_list_rows');
+                    editListRows.innerHTML = '';
+                    try {
+                        var listItems = listItemsAttr ? JSON.parse(atob(listItemsAttr)) : [];
+                        if (Array.isArray(listItems)) {
+                            listItems.forEach(function(text, i) {
+                                var escaped = (text || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                                editListRows.insertAdjacentHTML('beforeend', '<div class="content-list-item-row mb-1 d-flex gap-1 align-items-center"><input type="text" class="form-control form-control-sm flex-grow-1" name="content_list_items[' + i + ']" value="' + escaped + '" placeholder="List item"><button type="button" class="btn btn-sm btn-outline-danger list-item-remove-btn"><i class="bi bi-trash"></i></button></div>');
+                            });
+                        }
+                    } catch (e) {}
                     document.getElementById('edit_category').value = categoryId || '';
                     document.getElementById('edit_location').value = location || '';
                     document.getElementById('edit_google_maps_address').value = googleMapsAddress || '';

@@ -12,6 +12,12 @@ class Event extends Model
     protected $fillable = [
         'name',
         'description',
+        'content_before_tickets',
+        'content_cards',
+        'content_cards_heading',
+        'content_cards_subheading',
+        'content_list_heading',
+        'content_list_items',
         'event_category_id',
         'location',
         'google_maps_address',
@@ -27,6 +33,8 @@ class Event extends Model
         'start_datetime' => 'datetime',
         'end_datetime' => 'datetime',
         'images' => 'array',
+        'content_cards' => 'array',
+        'content_list_items' => 'array',
     ];
 
     public function category(): BelongsTo
