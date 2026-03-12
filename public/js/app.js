@@ -156,7 +156,12 @@ function updateCountdown() {
     const countdownElement = document.getElementById('countdown');
     if (!countdownElement) return;
     
-    const targetDate = new Date('2026-06-15T00:00:00').getTime();
+    const rawTarget = countdownElement.getAttribute('data-target-datetime') || '2026-06-15T00:00:00';
+    const targetDate = new Date(rawTarget).getTime();
+    if (Number.isNaN(targetDate)) {
+        countdownElement.innerHTML = 'Invalid countdown date.';
+        return;
+    }
     const now = new Date().getTime();
     const distance = targetDate - now;
     

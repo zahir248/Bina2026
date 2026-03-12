@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\EventParticipantsController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Models\Setting;
 
 // Serve storage files via Laravel (works on cPanel where public/storage symlink may not work)
 Route::get('/storage/serve/{path}', function (string $path) {
@@ -34,7 +35,9 @@ Route::get('/storage/serve/{path}', function (string $path) {
 })->where('path', '.*')->name('storage.serve');
 
 Route::get('/', function () {
-    return view('client.home');
+    $countdownEnabled = Setting::get(SettingsController::KEY_COUNTDOWN_ENABLED, '1') === '1';
+    $countdownTargetDatetime = Setting::get(SettingsController::KEY_COUNTDOWN_TARGET_DATETIME, '2026-06-15T00:00:00');
+    return view('client.home', compact('countdownEnabled', 'countdownTargetDatetime'));
 })->name('home');
 
 Route::get('/gallery', function () {

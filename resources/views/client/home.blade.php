@@ -49,13 +49,17 @@
     </div>
 
     <!-- Countdown Section -->
-    <section class="countdown-section">
-        <div class="container">
-            <div class="countdown-content">
-                <div id="countdown" class="countdown-timer"></div>
+    @if(($countdownEnabled ?? true) === true)
+        <section class="countdown-section">
+            <div class="container">
+                <div class="countdown-content">
+                    <div id="countdown"
+                         class="countdown-timer"
+                         data-target-datetime="{{ $countdownTargetDatetime ?? '2026-06-15T00:00:00' }}"></div>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 
     <!-- Main Content Section - Event listing by category -->
     <section class="main-content-section" id="events-section">
