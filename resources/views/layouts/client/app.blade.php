@@ -43,21 +43,37 @@
             @php
                 $isSimplifiedNav = request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('profile.index') || request()->routeIs('profile.purchaseHistory');
             @endphp
+            @php
+                $currentEventSlug = request()->routeIs('events.show') ? request()->route('slug') : null;
+            @endphp
             <ul class="nav-menu">
-                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('home') }}">Home</a></li>
+                <li class="nav-text-item"><a class="nav-text-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a></li>
                 @unless($isSimplifiedNav)
-                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('about-bina') }}">About</a></li>
-                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('gallery') }}">Gallery</a></li>
+                <li class="nav-text-item nav-item--has-dropdown">
+                    <div class="dropdown nav-dropdown">
+                        <a href="#" class="nav-text-link nav-dropdown-trigger {{ request()->routeIs('about-bina', 'gallery') ? 'active' : '' }}">About <span class="dropdown-arrow">▼</span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ route('about-bina') }}" class="dropdown-menu-item {{ request()->routeIs('about-bina') ? 'active' : '' }}">About</a></li>
+                            <li><a href="{{ route('gallery') }}" class="dropdown-menu-item {{ request()->routeIs('gallery') ? 'active' : '' }}">Gallery</a></li>
+                        </ul>
+                    </div>
+                </li>
                 <li class="nav-category-group">
                     <ul class="nav-category-list">
                         @foreach($eventCategories ?? [] as $category)
-                        <li><a class="nav-category-link" href="{{ $category->eventSlug ? route('events.show', $category->eventSlug) : route('home') }}">{{ $category->name }}</a></li>
+                        @php
+                            $words = explode(' ', trim($category->name));
+                            $mid = (int) ceil(count($words) / 2);
+                            $line1 = implode(' ', array_slice($words, 0, $mid));
+                            $line2 = $mid < count($words) ? implode(' ', array_slice($words, $mid)) : '';
+                        @endphp
+                        <li><a class="nav-category-link {{ $currentEventSlug && $category->eventSlug === $currentEventSlug ? 'active' : '' }}" href="{{ $category->eventSlug ? route('events.show', $category->eventSlug) : route('home') }}">{{ $line1 }}@if($line2)<br>{{ $line2 }}@endif</a></li>
                         @endforeach
                     </ul>
                 </li>
-                <li class="nav-text-item nav-text-item--full"><a class="nav-text-link" href="{{ route('career-spotlight') }}">Career Spotlight<br>@ Bina</a></li>
-                <li class="nav-text-item"><a class="nav-text-link" href="{{ route('ibs-home') }}">IBS<br>Home</a></li>
-                <li class="nav-text-item nav-text-item--full"><a class="nav-text-link" href="{{ route('nextgen-bina') }}">NextGen<br>@ Bina</a></li>
+                <li class="nav-text-item nav-text-item--full"><a class="nav-text-link {{ request()->routeIs('career-spotlight') ? 'active' : '' }}" href="{{ route('career-spotlight') }}">Career Spotlight<br>@ Bina</a></li>
+                <li class="nav-text-item"><a class="nav-text-link {{ request()->routeIs('ibs-home') ? 'active' : '' }}" href="{{ route('ibs-home') }}">IBS<br>Home</a></li>
+                <li class="nav-text-item nav-text-item--full"><a class="nav-text-link {{ request()->routeIs('nextgen-bina') ? 'active' : '' }}" href="{{ route('nextgen-bina') }}">NextGen<br>@ Bina</a></li>
                 @endunless
                 @auth
                 <li class="nav-icon">
