@@ -38,7 +38,7 @@ class OrderController extends Controller
 
         $events = Event::with('category')->orderBy('name')->get();
         $query = $this->buildOrdersQuery($request);
-        $orders = $query->paginate(15)->withQueryString();
+        $orders = $query->paginate(10)->withQueryString();
 
         return view('admin.orders.index', compact('orders', 'events', 'search', 'statusFilter', 'paymentFilter', 'refundStatusFilter', 'refundOrdersFilter', 'eventFilter', 'dateFromFilter', 'dateToFilter'));
     }

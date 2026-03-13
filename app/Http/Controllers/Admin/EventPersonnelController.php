@@ -49,7 +49,7 @@ class EventPersonnelController extends Controller
         $query->orderBy('created_at', 'desc');
         
         // Paginate with query parameters
-        $personnel = $query->paginate(15)->withQueryString();
+        $personnel = $query->paginate(10)->withQueryString();
         
         // Get all schedules for selection with their events
         $schedules = Schedule::with('event')->where('status', 'active')->orderBy('start_time')->get();

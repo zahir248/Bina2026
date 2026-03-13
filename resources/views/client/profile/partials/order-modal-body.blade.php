@@ -50,7 +50,7 @@
             <tr>
                 <td class="client-order-modal-muted">Refund status</td>
                 <td>
-                    <span class="purchase-status-badge {{ $order->refund_status === 'pending' ? 'purchase-status-pending' : 'purchase-status-paid' }}">
+                    <span class="purchase-status-badge {{ $order->refund_status === 'pending' ? 'purchase-status-pending' : ($order->refund_status === 'approved' ? 'purchase-status-paid' : ($order->refund_status === 'rejected' ? 'purchase-status-rejected' : 'purchase-status-refunded')) }}">
                         {{ $order->refund_status === 'pending' ? 'Reviewing' : ucfirst($order->refund_status) }}
                     </span>
                     @if($order->refund_status === 'approved')

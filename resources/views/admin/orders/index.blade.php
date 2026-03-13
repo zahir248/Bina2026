@@ -32,6 +32,16 @@
         vertical-align: middle !important;
     }
 
+    .badge-refunded {
+        background-color: #0d9488;
+        color: #fff;
+    }
+
+    .badge-cancelled {
+        background-color: #6B7280;
+        color: #fff;
+    }
+
     .btn-admin-success {
         background-color: #10b981;
         color: white;
@@ -179,11 +189,11 @@
                                 <td class="text-center">RM {{ number_format($order->total_amount_cents / 100, 2) }}</td>
                                 <td class="text-center">
                                     @if(!empty($refundOrdersFilter) || !empty($refundStatusFilter))
-                                        <span class="badge {{ $order->refund_status === 'pending' ? 'bg-warning text-dark' : 'bg-info text-dark' }}">
+                                        <span class="badge {{ $order->refund_status === 'pending' ? 'bg-warning text-dark' : ($order->refund_status === 'approved' ? 'bg-success' : ($order->refund_status === 'rejected' ? 'bg-danger' : 'bg-info text-dark')) }}">
                                             {{ $order->refund_status === 'pending' ? 'Reviewing' : ucfirst($order->refund_status ?? 'refunded') }}
                                         </span>
                                     @else
-                                        <span class="badge {{ $order->status === 'paid' ? 'bg-success' : ($order->status === 'cancelled' ? 'bg-secondary' : ($order->status === 'refunded' ? 'bg-info text-dark' : 'bg-warning text-dark')) }}">
+                                        <span class="badge {{ $order->status === 'paid' ? 'bg-success' : ($order->status === 'cancelled' ? 'badge-cancelled' : ($order->status === 'refunded' ? 'badge-refunded' : 'bg-warning text-dark')) }}">
                                             {{ ucfirst($order->status) }}
                                         </span>
                                     @endif
@@ -241,8 +251,8 @@
             </div>
 
             <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-4">
-                {{ $orders->links() }}
+            <div class="d-flex justify-content-center mt-4 admin-pagination">
+                {{ $orders->links('pagination.admin') }}
             </div>
         </div>
     </div>

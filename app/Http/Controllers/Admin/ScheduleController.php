@@ -48,7 +48,7 @@ class ScheduleController extends Controller
         $query->orderBy('created_at', 'desc');
         
         // Paginate with query parameters
-        $events = $query->paginate(15)->withQueryString();
+        $events = $query->paginate(10)->withQueryString();
         
         // Get all categories for filter dropdown
         $categories = EventCategory::where('status', 'active')->orderBy('name')->get();

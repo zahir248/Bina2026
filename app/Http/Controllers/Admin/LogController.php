@@ -30,7 +30,7 @@ class LogController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        $logs = $query->paginate(20)->withQueryString();
+        $logs = $query->paginate(10)->withQueryString();
 
         return view('admin.logs.email', compact('logs', 'search', 'statusFilter'));
     }

@@ -37,6 +37,18 @@
             --card-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
 
+        .badge-refunded { background-color: #0d9488; color: #fff; }
+        .badge-cancelled { background-color: #6B7280; color: #fff; }
+        .badge-pending { background-color: #ffc107; color: #fff; }
+
+        .admin-pagination nav {
+            display: inline-flex;
+        }
+
+        .admin-pagination .pagination {
+            margin-bottom: 0;
+        }
+
         * {
             margin: 0;
             padding: 0;

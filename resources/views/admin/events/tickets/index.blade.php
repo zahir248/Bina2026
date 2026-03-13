@@ -265,8 +265,8 @@
             </div>
             
             <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-4">
-                {{ $tickets->links() }}
+            <div class="d-flex justify-content-center mt-4 admin-pagination">
+                {{ $tickets->links('pagination.admin') }}
             </div>
         </div>
     </div>

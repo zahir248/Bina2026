@@ -215,8 +215,8 @@
             </div>
             
             <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-4">
-                {{ $events->links() }}
+            <div class="d-flex justify-content-center mt-4 admin-pagination">
+                {{ $events->links('pagination.admin') }}
             </div>
         </div>
     </div>

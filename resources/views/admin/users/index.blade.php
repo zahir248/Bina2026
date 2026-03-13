@@ -183,8 +183,8 @@
 
             <!-- Pagination -->
             @if($users->hasPages())
-                <div class="mt-4">
-                    {{ $users->links() }}
+                <div class="mt-4 admin-pagination">
+                    {{ $users->links('pagination.admin') }}
                 </div>
             @endif
         </div>

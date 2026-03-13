@@ -175,8 +175,8 @@
             </div>
             
             <!-- Pagination -->
-            <div class="d-flex justify-content-center mt-4">
-                {{ $affiliateCodes->links() }}
+            <div class="d-flex justify-content-center mt-4 admin-pagination">
+                {{ $affiliateCodes->links('pagination.admin') }}
             </div>
         </div>
     </div>

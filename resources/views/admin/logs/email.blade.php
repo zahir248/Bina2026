@@ -83,8 +83,8 @@
                 </table>
             </div>
 
-            <div class="d-flex justify-content-center mt-4">
-                {{ $logs->links() }}
+            <div class="d-flex justify-content-center mt-4 admin-pagination">
+                {{ $logs->links('pagination.admin') }}
             </div>
         </div>
     </div>

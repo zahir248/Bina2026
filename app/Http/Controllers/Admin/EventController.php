@@ -49,7 +49,7 @@ class EventController extends Controller
         $query->orderBy('created_at', 'desc');
         
         // Paginate with query parameters
-        $events = $query->paginate(15)->withQueryString();
+        $events = $query->paginate(10)->withQueryString();
         $categories = EventCategory::where('status', 'active')->orderBy('name')->get();
 
         return view('admin.events.index', compact('events', 'categories', 'search', 'statusFilter', 'categoryFilter'));

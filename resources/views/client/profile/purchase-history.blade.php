@@ -63,7 +63,7 @@
                                             <td>{{ number_format($order->total_amount_cents / 100, 2) }}</td>
                                             <td>
                                                 @if($activeTab === 'refund' && $order->refund_status)
-                                                    <span class="purchase-status-badge {{ $order->refund_status === 'pending' ? 'purchase-status-pending' : 'purchase-status-refunded' }}">
+                                                    <span class="purchase-status-badge {{ $order->refund_status === 'pending' ? 'purchase-status-pending' : ($order->refund_status === 'approved' ? 'purchase-status-paid' : ($order->refund_status === 'rejected' ? 'purchase-status-rejected' : 'purchase-status-refunded')) }}">
                                                         {{ $order->refund_status === 'pending' ? 'Reviewing' : ucfirst($order->refund_status) }}
                                                     </span>
                                                 @else
@@ -490,9 +490,12 @@
     color: #065F46;
 }
 
+/* Same style for To Pay "Pending" and Refund "Reviewing" (including font/text color) – matches admin bg-warning text-dark */
 .purchase-status-pending {
-    background: #FEF3C7;
-    color: #92400E;
+    background: #ffc107;
+    color: #212529;
+    font-size: 0.8125rem;
+    font-weight: 500;
 }
 
 .purchase-status-failed {
@@ -501,13 +504,21 @@
 }
 
 .purchase-status-refunded {
-    background: #E0E7FF;
-    color: #3730A3;
+    /* Teal: completed/settled, distinct from paid (green) and reviewing (yellow) */
+    background: #CCFBF1;
+    color: #0F766E;
+}
+
+.purchase-status-rejected {
+    /* Red: request declined */
+    background: #FEE2E2;
+    color: #991B1B;
 }
 
 .purchase-status-cancelled {
-    background: #F3F4F6;
-    color: #4B5563;
+    /* Neutral gray: order cancelled / closed */
+    background: #6B7280;
+    color: #fff;
 }
 
 .purchase-history-empty {

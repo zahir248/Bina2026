@@ -59,7 +59,7 @@ class UserController extends Controller
               ->orderBy('created_at', 'desc');
         
         // Paginate with query parameters
-        $users = $query->paginate(15)->withQueryString();
+        $users = $query->paginate(10)->withQueryString();
 
         return view('admin.users.index', compact('users', 'search', 'roleFilter', 'statusFilter', 'ticketPurchaserFilter'));
     }

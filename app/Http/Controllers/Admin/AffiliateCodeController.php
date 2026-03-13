@@ -42,7 +42,7 @@ class AffiliateCodeController extends Controller
         $query->orderBy('created_at', 'desc');
         
         // Paginate with query parameters
-        $affiliateCodes = $query->paginate(15)->withQueryString();
+        $affiliateCodes = $query->paginate(10)->withQueryString();
 
         return view('admin.affiliate-codes.index', compact('affiliateCodes', 'search', 'statusFilter'));
     }

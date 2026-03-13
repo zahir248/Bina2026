@@ -11,7 +11,7 @@
             <tr>
                 <td class="text-muted">Status</td>
                 <td>
-                    <span class="badge {{ $order->status === 'paid' ? 'bg-success' : ($order->status === 'failed' ? 'bg-danger' : 'bg-warning text-dark') }}">
+                    <span class="badge {{ $order->status === 'paid' ? 'bg-success' : ($order->status === 'cancelled' ? 'badge-cancelled' : ($order->status === 'refunded' ? 'badge-refunded' : ($order->status === 'failed' ? 'bg-danger' : 'bg-warning text-dark'))) }}">
                         {{ ucfirst($order->status) }}
                     </span>
                 </td>
@@ -60,7 +60,7 @@
             <tr>
                 <td class="text-muted" style="width: 200px;">Refund status</td>
                 <td>
-                    <span class="badge {{ $order->refund_status === 'pending' ? 'bg-warning text-dark' : 'bg-secondary' }}">
+                    <span class="badge {{ $order->refund_status === 'pending' ? 'bg-warning text-dark' : ($order->refund_status === 'approved' ? 'bg-success' : ($order->refund_status === 'rejected' ? 'bg-danger' : 'bg-info text-dark')) }}">
                         {{ $order->refund_status === 'pending' ? 'Reviewing' : ucfirst($order->refund_status) }}
                     </span>
                 </td>

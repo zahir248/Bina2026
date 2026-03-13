@@ -51,7 +51,7 @@ class TicketController extends Controller
         $query->orderBy('created_at', 'desc');
         
         // Paginate with query parameters
-        $tickets = $query->paginate(15)->withQueryString();
+        $tickets = $query->paginate(10)->withQueryString();
         
         // Get all events for selection
         $events = Event::where('status', 'active')->orderBy('name')->get();

@@ -50,7 +50,7 @@ class PromoCodeController extends Controller
         $query->orderBy('created_at', 'desc');
         
         // Paginate with query parameters
-        $promoCodes = $query->paginate(15)->withQueryString();
+        $promoCodes = $query->paginate(10)->withQueryString();
         
         // Get all events for selection
         $events = Event::where('status', 'active')->orderBy('name')->get();

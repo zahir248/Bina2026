@@ -177,7 +177,7 @@
                                         </td>
                                         <td>RM {{ number_format($order->total_amount_cents / 100, 2) }}</td>
                                         <td>
-                                            <span class="badge {{ $order->status === 'paid' ? 'bg-success' : ($order->status === 'cancelled' ? 'bg-secondary' : ($order->status === 'refunded' ? 'bg-info text-dark' : 'bg-warning text-dark')) }}">
+                                            <span class="badge {{ $order->status === 'paid' ? 'bg-success' : ($order->status === 'cancelled' ? 'badge-cancelled' : ($order->status === 'refunded' ? 'badge-refunded' : 'bg-warning text-dark')) }}">
                                                 {{ ucfirst($order->status) }}
                                             </span>
                                         </td>
