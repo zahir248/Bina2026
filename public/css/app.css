@@ -71,12 +71,67 @@ body {
     transform: translateY(-100%);
 }
 
+/* Profile (and other simplified-nav) pages: push main content below fixed navbar */
+.profile-page main,
+.cart-page main,
+.checkout-page main {
+    padding-top: 60px;
+}
+
 .navbar .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     height: 100%;
+}
+
+.nav-toggle {
+    display: none;
+    position: relative;
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-toggle-line {
+    position: absolute;
+    width: 22px;
+    height: 2px;
+    background-color: var(--text-white);
+    border-radius: 999px;
+    transition: transform 0.25s ease, opacity 0.2s ease, top 0.25s ease, bottom 0.25s ease;
+}
+
+.nav-toggle-line:nth-child(1) {
+    top: 13px;
+}
+
+.nav-toggle-line:nth-child(2) {
+    top: 19px;
+}
+
+.nav-toggle-line:nth-child(3) {
+    top: 25px;
+}
+
+.nav-toggle.is-open .nav-toggle-line:nth-child(1) {
+    top: 19px;
+    transform: rotate(45deg);
+}
+
+.nav-toggle.is-open .nav-toggle-line:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle.is-open .nav-toggle-line:nth-child(3) {
+    top: 19px;
+    transform: rotate(-45deg);
 }
 
 .nav-brand {
@@ -114,6 +169,16 @@ body {
     list-style: none;
     align-items: center;
     gap: 2rem;
+}
+
+.nav-menu-logo {
+    display: none;
+}
+
+.nav-menu-logo-img {
+    height: 32px;
+    width: auto;
+    display: block;
 }
 
 .nav-menu li {
@@ -497,6 +562,16 @@ body {
 
 .auth-buttons-group .dropdown {
     position: relative;
+    display: inline-block;
+}
+
+.auth-buttons-group .dropdown-menu {
+    top: 100%;
+    right: 0;
+    left: auto;
+    margin-top: 0.5rem;
+    min-width: 200px;
+    z-index: 1001;
 }
 
 /* Navbar About submenu dropdown */
@@ -513,13 +588,6 @@ body {
     display: inline-flex;
     align-items: center;
     -webkit-line-clamp: unset;
-}
-
-.auth-buttons-group .dropdown-menu {
-    top: 100%;
-    right: 0;
-    left: auto;
-    margin-top: 0.5rem;
 }
 
 .auth-btn:hover {
@@ -620,7 +688,7 @@ body {
 
 .hero-single .hero-banner-image {
     width: 100%;
-    height: 400px;
+    height: 420px;
     object-fit: cover;
     display: block;
     filter: brightness(0.5);
@@ -648,7 +716,7 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 1;
-    padding: 1rem;
+    padding: 1.5rem 1.25rem;
     text-align: center;
 }
 
@@ -660,11 +728,11 @@ body {
 }
 
 .hero-single-title {
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    font-size: 3.5rem;
+    font-size: 3.25rem;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.15;
     color: #fff;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
     letter-spacing: 0.02em;
@@ -672,12 +740,13 @@ body {
 
 @media (max-width: 768px) {
     .hero-single-title {
-        font-size: 2.25rem;
+        font-size: 1.9rem;
+        line-height: 1.2;
     }
 }
 
 .hero-single-meta {
-    margin: 0;
+    margin: 0 0 0.5rem;
     font-size: clamp(0.9rem, 2vw, 1.1rem);
     font-weight: 600;
     color: rgba(255, 255, 255, 0.95);
@@ -705,9 +774,9 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    margin-top: 1.25rem;
-    padding: 0.6rem 1.5rem;
-    font-size: 1rem;
+    margin-top: 0.75rem;
+    padding: 0.55rem 1.35rem;
+    font-size: 0.95rem;
     font-weight: 500;
     color: #fff;
     background: rgba(255, 255, 255, 0.12);
@@ -747,8 +816,8 @@ body {
 
 .hero-single-social {
     position: absolute;
-    bottom: 1rem;
-    right: 1rem;
+    bottom: 1.25rem;
+    right: 1.25rem;
     display: flex;
     gap: 0.5rem;
     z-index: 1;
@@ -1525,6 +1594,24 @@ body {
 .about-bina-logo-block {
     text-align: left;
     margin-bottom: 1.5rem;
+}
+
+/* About page: center logo and "ABOUT BINA" header */
+.about-bina-content .about-bina-logo-block {
+    text-align: center;
+}
+
+.about-bina-content .about-bina-logo-block .about-bina-logo-img {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.about-bina-content .about-bina-heading {
+    text-align: center;
+}
+
+.about-bina-content .about-bina-subheading {
+    text-align: center;
 }
 
 .about-bina-logo-img {
@@ -4115,6 +4202,13 @@ body {
     padding: 2rem 0 0 0;
 }
 
+@media (max-width: 768px) {
+    .bina-intro-cta {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
 .bina-intro-read-more {
     display: inline-flex;
     align-items: center;
@@ -4274,6 +4368,61 @@ body {
     display: flex;
     flex-direction: column;
     gap: 3rem;
+}
+
+@media (max-width: 768px) {
+    .events-section {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 2rem 1.25rem 2.5rem 1.25rem;
+        border-radius: 1.5rem 1.5rem 0 0;
+        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .events-section-title {
+        font-size: 1.6rem;
+        letter-spacing: 0.06em;
+    }
+
+    .events-section-subtitle {
+        font-size: 0.85rem;
+        padding: 0 0.25rem;
+    }
+
+    .events-section .events-list {
+        gap: 1.5rem;
+    }
+
+    .event-item {
+        margin: 0 0 1.5rem 0;
+        border-radius: 1.25rem;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .event-item-image {
+        border-radius: 1.25rem 1.25rem 0 0;
+    }
+
+    .event-item-content {
+        padding: 1.25rem 1.1rem 1.5rem 1.1rem;
+        min-height: auto;
+    }
+
+    .event-item-content h3 {
+        font-size: 1.35rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .event-meta {
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    .event-description {
+        margin-top: 0.6rem;
+        font-size: 0.9rem;
+    }
 }
 
 .events-section .event-loading p {
@@ -5350,26 +5499,9 @@ body {
         grid-row: 2;
     }
 
-    .sidebar-left {
-        grid-column: 1;
-        grid-row: 4;
-    }
-
+    .sidebar-left,
     .sidebar-right {
-        grid-column: 1;
-        grid-row: 3;
-    }
-
-    .sidebar {
-        order: 0;
-    }
-
-    .sidebar-right {
-        order: 0;
-    }
-
-    .main-content {
-        order: 0;
+        display: none;
     }
 
     .bina-intro-panel {
@@ -5446,12 +5578,127 @@ body {
     }
 }
 
-@media (max-width: 768px) {
-    .nav-menu {
-        flex-wrap: wrap;
-        gap: 1rem;
+@media (max-width: 992px) {
+    .nav-toggle {
+        display: flex;
     }
 
+    /* Hide top-left brand logo on small screens;
+       logo is shown inside the slide-down menu instead */
+    .nav-brand {
+        display: none;
+    }
+
+    .nav-menu {
+        position: absolute;
+        inset: 60px 0 auto 0;
+        background: #0d0d0d;
+        padding: 12px 20px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-4px);
+        transition: max-height 0.25s ease, opacity 0.2s ease, visibility 0.2s ease, transform 0.25s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-menu.is-open {
+        max-height: 60vh;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        overflow: visible;
+    }
+
+    /* Account dropdown: same behaviour as About dropdown on small screens */
+    .nav-auth .auth-buttons-group .dropdown {
+        overflow: visible;
+    }
+
+    .nav-auth .auth-buttons-group .dropdown-menu {
+        left: 0;
+        right: auto;
+        min-width: 200px;
+    }
+
+    .nav-menu li {
+        width: 100%;
+    }
+
+    .nav-menu-logo {
+        display: block;
+        width: 100%;
+        margin-bottom: 0.75rem;
+    }
+
+    .nav-menu-logo-img {
+        height: 28px;
+        margin-left: 2px;
+    }
+
+    .nav-menu li a:not(.cart-toggle):not(.auth-btn),
+    .nav-menu li.nav-text-item a.nav-text-link {
+        display: block;
+        max-width: 100%;
+        width: 100%;
+        text-align: left;
+        -webkit-line-clamp: unset;
+        white-space: nowrap !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Hide manual line breaks inside nav for mobile/tablet so labels stay on one line */
+    .nav-menu br {
+        display: none;
+    }
+
+    .nav-category-group {
+        width: 100%;
+    }
+
+    .nav-category-list {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: flex-start;
+    }
+
+    .nav-category-list .nav-category-link {
+        text-align: left;
+        max-width: 100%;
+    }
+
+    .nav-auth {
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+
+    .auth-buttons-group {
+        width: auto;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 0;
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        border: none;
+    }
+
+    .auth-btn-account {
+        width: auto;
+        max-width: none;
+        margin: 0;
+        border-radius: 999px;
+        background: #3A3A3A;
+    }
+}
+
+@media (max-width: 768px) {
     .hero-event-title {
         font-size: 2.5rem;
     }
@@ -5505,7 +5752,10 @@ body {
     }
 
     .offering-section {
-        padding: 2rem 0 2.5rem 0;
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        padding: 2rem 1.25rem 2.5rem 1.25rem;
     }
 
     .offering-card {
@@ -5638,7 +5888,7 @@ body {
 .event-action-buttons-overlay .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0;
+    padding: 0 1.25rem;
 }
 
 .event-action-buttons-overlay .action-buttons-group {
@@ -5738,6 +5988,35 @@ body {
     z-index: 5;
 }
 
+@media (max-width: 992px) {
+    .event-show-container {
+        margin-top: -120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .event-show-container {
+        margin-top: -300px;
+        padding-top: 0;
+    }
+
+    .event-show-content {
+        padding: 0 1.25rem 1.5rem 1.25rem;
+    }
+
+    .event-show-title {
+        margin-left: -1.25rem;
+        margin-right: -1.25rem;
+        padding: 1rem 1.25rem;
+        width: calc(100% + 2.5rem);
+        font-size: 1.25rem;
+    }
+
+    .event-hero .hero-banner-image {
+        min-height: 280px;
+    }
+}
+
 .event-show-content {
     background: var(--text-white);
     border-radius: 0.25rem;
@@ -5803,6 +6082,27 @@ body {
 .event-tab.active {
     color: var(--primary-color);
     border-bottom-color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    .event-tabs {
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        white-space: nowrap;
+        gap: 0;
+        padding-bottom: 0.25rem;
+    }
+
+    .event-tab {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
 }
 
 .tab-content {
@@ -5871,7 +6171,7 @@ body {
     font-weight: 600;
     color: var(--primary-color);
     font-family: 'Inter', sans-serif;
-    min-width: 140px;
+    min-width: 90px;
     flex-shrink: 0;
     padding-top: 0.25rem;
     text-align: left;
@@ -6829,10 +7129,11 @@ body {
 }
 
 .ticket-card-bottom {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 14px 20px 18px 20px;
+    gap: 1rem;
 }
 
 .ticket-bottom-price {
@@ -6840,13 +7141,11 @@ body {
     font-size: 0.9rem;
     color: #111827;
     white-space: nowrap;
-    text-align: center;
-    grid-column: 2;
+    text-align: left;
 }
 
 .ticket-bottom-qty {
-    grid-column: 3;
-    justify-self: end;
+    margin-left: auto;
 }
 
 .ticket-bottom-remark {
@@ -6854,6 +7153,7 @@ body {
     color: #9CA3AF;
     font-weight: 500;
     font-size: 13px;
+    white-space: nowrap;
 }
 
 .ticket-card-image {

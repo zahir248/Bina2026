@@ -40,6 +40,11 @@
                     <img src="{{ asset('images/bina-logo.png') }}" alt="BINA Logo" class="nav-logo">
                 </a>
             </div>
+            <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="nav-toggle-line"></span>
+                <span class="nav-toggle-line"></span>
+                <span class="nav-toggle-line"></span>
+            </button>
             @php
                 $isSimplifiedNav = request()->routeIs('cart.index') || request()->routeIs('checkout.index') || request()->routeIs('profile.index') || request()->routeIs('profile.purchaseHistory');
             @endphp
@@ -47,6 +52,9 @@
                 $currentEventSlug = request()->routeIs('events.show') ? request()->route('slug') : null;
             @endphp
             <ul class="nav-menu">
+                <li class="nav-menu-logo">
+                    <img src="{{ asset('images/bina-logo.png') }}" alt="BINA Logo" class="nav-menu-logo-img">
+                </li>
                 <li class="nav-text-item"><a class="nav-text-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a></li>
                 @unless($isSimplifiedNav)
                 <li class="nav-text-item nav-item--has-dropdown">

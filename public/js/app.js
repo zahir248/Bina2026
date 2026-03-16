@@ -219,15 +219,19 @@ if (document.getElementById('countdown')) {
     setInterval(updateCountdown, 1000);
 }
 
-// Dropdown menu toggle on click
+// Dropdown menu toggle on click + mobile navbar toggle
 document.addEventListener('DOMContentLoaded', function() {
     const dropdowns = document.querySelectorAll('.dropdown');
+    const navToggle = document.querySelector('.nav-toggle');
+    const navMenu = document.querySelector('.nav-menu');
     
     dropdowns.forEach(dropdown => {
         const dropdownLink = dropdown.querySelector('a');
         
         if (dropdownLink) {
             dropdownLink.addEventListener('click', function(e) {
+                // On desktop, keep existing click-to-open behaviour.
+                // On mobile, also keep behaviour but within the slide-down menu.
                 e.preventDefault();
                 
                 // Close all other dropdowns
@@ -251,4 +255,24 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Mobile navbar toggle
+    if (navToggle && navMenu) {
+        navToggle.addEventListener('click', function () {
+            const isOpen = navMenu.classList.toggle('is-open');
+            navToggle.classList.toggle('is-open', isOpen);
+            navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        // Close menu when clicking a real nav link or a dropdown submenu item (not the dropdown trigger).
+        navMenu.addEventListener('click', function (e) {
+            const link = e.target.closest('a');
+            if (!link) return;
+            const isDropdownTrigger = link.closest('.dropdown') && !link.closest('.dropdown-menu');
+            if (isDropdownTrigger) return; /* keep menu open so dropdown can show */
+            navMenu.classList.remove('is-open');
+            navToggle.classList.remove('is-open');
+            navToggle.setAttribute('aria-expanded', 'false');
+        });
+    }
 });

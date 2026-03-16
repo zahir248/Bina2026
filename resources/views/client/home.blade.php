@@ -82,7 +82,7 @@
 
             <!-- Main Content - BINA Intro + Events List -->
             <main class="main-content">
-                <!-- BINA 2025 Introduction Panel: images left, intro right -->
+                <!-- BINA 2026 Introduction Panel: images left, intro right -->
                 <section class="bina-intro-panel" aria-labelledby="bina-intro-title">
                     <div class="bina-intro-images">
                         <div class="bina-intro-image bina-intro-image-main">
@@ -98,8 +98,8 @@
                     <div class="bina-intro-content">
                         <div class="bina-intro-header">
                             <p class="bina-intro-subheading">Introduction about</p>
-                        <h2 id="bina-intro-title" class="bina-intro-title">BINA 2025</h2>
-                        <p class="bina-intro-lead">BINA 2025 will showcase breakthrough solutions, foster high-impact discussions, and shape the next era of construction. Join us in celebrating five years of innovation—here industry meets transformation!</p>
+                        <h2 id="bina-intro-title" class="bina-intro-title">BINA 2026</h2>
+                        <p class="bina-intro-lead">BINA 2026 will showcase breakthrough solutions, foster high-impact discussions, and shape the next era of construction. Join us in celebrating six years of innovation—here industry meets transformation!</p>
                         </div>
                         <div class="bina-intro-cards">
                         <article class="bina-intro-card">
@@ -110,7 +110,7 @@
                             </div>
                             <div class="bina-intro-card-content">
                                 <h3 class="bina-intro-card-heading">Transforming ASEAN's construction landscape</h3>
-                                <p>As part of BINA Conference at ICW 2025, MODULAR ASIA is a premier forum and exhibition dedicated to advancing Modular Technology, Modern Methods of Construction (MMC), and Industrialised Building Systems (IBS).</p>
+                                <p>As part of BINA Conference at ICW 2026, MODULAR ASIA is a premier forum and exhibition dedicated to advancing Modular Technology, Modern Methods of Construction (MMC), and Industrialised Building Systems (IBS).</p>
                             </div>
                         </article>
                         <article class="bina-intro-card">
@@ -121,7 +121,7 @@
                             </div>
                             <div class="bina-intro-card-content">
                                 <h3 class="bina-intro-card-heading">Where expertise meets business growth</h3>
-                                <p>As part of BINA 2025 at ICW, Facility Management Engagement Day goes beyond a traditional conference—it's a dynamic platform for industry leaders, innovators, and businesses to exchange expertise, explore best practices, and unlock new opportunities in facility management.</p>
+                                <p>As part of BINA 2026 at ICW, Facility Management Engagement Day goes beyond a traditional conference—it's a dynamic platform for industry leaders, innovators, and businesses to exchange expertise, explore best practices, and unlock new opportunities in facility management.</p>
                             </div>
                         </article>
                     </div>
@@ -225,7 +225,7 @@
                 <section class="official-partners-section" aria-labelledby="official-partners-title">
                     <h2 id="official-partners-title" class="official-partners-title">SPONSORS & PARTNERS</h2>
                     <p class="official-partners-subtitle">OUR OFFICIAL PARTNERS</p>
-                    <p class="official-partners-lead">Now, it's your turn to be part of something bigger! Join us at BINA 2025 and be a driving force in shaping the future of ASEAN's construction industry.</p>
+                    <p class="official-partners-lead">Now, it's your turn to be part of something bigger! Join us at BINA 2026 and be a driving force in shaping the future of ASEAN's construction industry.</p>
                     <p class="official-partners-lead">Together, let's innovate, collaborate, and build a smarter, more sustainable future! Partner with us. Lead the change. Construct the future!</p>
                     <div class="support-by">
                         <h3 class="support-by-title">SUPPORT BY</h3>

@@ -416,7 +416,17 @@
                                 @foreach($schedules as $schedule)
                                     <div class="schedule-item">
                                         <div class="schedule-time">
-                                            {{ $schedule['time_range'] }}
+                                            @php
+                                                $timeParts = explode(' - ', $schedule['time_range'] ?? '');
+                                                $startTime = $timeParts[0] ?? '';
+                                                $endTime = $timeParts[1] ?? '';
+                                            @endphp
+                                            @if($startTime !== '')
+                                                <div>{{ $startTime }}</div>
+                                            @endif
+                                            @if($endTime !== '')
+                                                <div>- {{ $endTime }}</div>
+                                            @endif
                                         </div>
                                         <div class="schedule-line"></div>
                                         <div class="schedule-details">
