@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\EventParticipantsController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Models\Setting;
+use App\Models\Event;
 
 // Serve storage files via Laravel (works on cPanel where public/storage symlink may not work)
 Route::get('/storage/serve/{path}', function (string $path) {
@@ -37,7 +38,26 @@ Route::get('/storage/serve/{path}', function (string $path) {
 Route::get('/', function () {
     $countdownEnabled = Setting::get(SettingsController::KEY_COUNTDOWN_ENABLED, '1') === '1';
     $countdownTargetDatetime = Setting::get(SettingsController::KEY_COUNTDOWN_TARGET_DATETIME, '2026-06-15T00:00:00');
-    return view('client.home', compact('countdownEnabled', 'countdownTargetDatetime'));
+    $countdownEvents = [];
+
+    // Countdown prioritises upcoming events; admin target is used only when no events exist
+    if ($countdownEnabled) {
+        $upcomingEvents = Event::where('status', 'active')
+            ->where('end_datetime', '>', now())
+            ->orderBy('start_datetime', 'asc')
+            ->get();
+        foreach ($upcomingEvents as $event) {
+            if ($event->start_datetime && $event->end_datetime) {
+                $countdownEvents[] = [
+                    'datetime' => $event->start_datetime->format('Y-m-d\TH:i:s'),
+                    'end' => $event->end_datetime->format('Y-m-d\TH:i:s'),
+                    'name' => $event->name,
+                ];
+            }
+        }
+    }
+
+    return view('client.home', compact('countdownEnabled', 'countdownTargetDatetime', 'countdownEvents'));
 })->name('home');
 
 Route::get('/gallery', function () {

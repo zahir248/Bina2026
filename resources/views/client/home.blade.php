@@ -48,14 +48,15 @@
         </div>
     </div>
 
-    <!-- Countdown Section -->
+    <!-- Countdown Section: events are prioritised; admin target is used only when no upcoming events -->
     @if(($countdownEnabled ?? true) === true)
         <section class="countdown-section">
+            <script type="application/json" id="countdown-events-data">@json($countdownEvents ?? [])</script>
             <div class="container">
                 <div class="countdown-content">
                     <div id="countdown"
                          class="countdown-timer"
-                         data-target-datetime="{{ $countdownTargetDatetime ?? '2026-06-15T00:00:00' }}"></div>
+                         data-countdown-fallback="{{ $countdownTargetDatetime ?? '2026-06-15T00:00:00' }}"></div>
                 </div>
             </div>
         </section>

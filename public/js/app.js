@@ -151,73 +151,108 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Countdown timer
-function updateCountdown() {
+// Countdown timer (supports multiple events: when one ends, continues to the next)
+(function() {
     const countdownElement = document.getElementById('countdown');
     if (!countdownElement) return;
-    
-    const rawTarget = countdownElement.getAttribute('data-target-datetime') || '2026-06-15T00:00:00';
-    const targetDate = new Date(rawTarget).getTime();
-    if (Number.isNaN(targetDate)) {
-        countdownElement.innerHTML = 'Invalid countdown date.';
-        return;
-    }
-    const now = new Date().getTime();
-    const distance = targetDate - now;
-    
-    if (distance < 0) {
-        countdownElement.innerHTML = 'Event has started!';
-        return;
-    }
-    
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-    // Format with leading zeros
-    const formatNumber = (num) => String(num).padStart(2, '0');
-    
-    countdownElement.innerHTML = `
-        <div class="countdown-item">
-            <div class="countdown-box">
-                <div class="countdown-flip">
-                    <span class="countdown-number">${formatNumber(days)}</span>
-                </div>
-            </div>
-            <span class="countdown-label">DAYS</span>
-        </div>
-        <div class="countdown-item">
-            <div class="countdown-box">
-                <div class="countdown-flip">
-                    <span class="countdown-number">${formatNumber(hours)}</span>
-                </div>
-            </div>
-            <span class="countdown-label">HOURS</span>
-        </div>
-        <div class="countdown-item">
-            <div class="countdown-box">
-                <div class="countdown-flip">
-                    <span class="countdown-number">${formatNumber(minutes)}</span>
-                </div>
-            </div>
-            <span class="countdown-label">MINUTES</span>
-        </div>
-        <div class="countdown-item">
-            <div class="countdown-box">
-                <div class="countdown-flip">
-                    <span class="countdown-number">${formatNumber(seconds)}</span>
-                </div>
-            </div>
-            <span class="countdown-label">SECONDS</span>
-        </div>
-    `;
-}
 
-if (document.getElementById('countdown')) {
+    let events = [];
+    try {
+        const dataEl = document.getElementById('countdown-events-data');
+        if (dataEl && dataEl.textContent) events = JSON.parse(dataEl.textContent);
+    } catch (e) {}
+    const fallback = countdownElement.getAttribute('data-countdown-fallback') || '2026-06-15T00:00:00';
+
+    let currentIndex = 0;
+    let currentTarget = null;
+    if (events.length > 0) {
+        currentTarget = events[0].datetime;
+    } else {
+        currentTarget = fallback;
+    }
+
+    function updateCountdown() {
+        if (!countdownElement) return;
+        const targetDate = new Date(currentTarget).getTime();
+        if (Number.isNaN(targetDate)) {
+            countdownElement.innerHTML = 'Invalid countdown date.';
+            return;
+        }
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance < 0) {
+            // Using admin fallback (no events): show message and collapse
+            if (events.length === 0) {
+                countdownElement.innerHTML = 'Event has started!';
+                var sectionFallback = countdownElement.closest('.countdown-section');
+                if (sectionFallback) sectionFallback.style.display = 'none';
+                return;
+            }
+            // Start time reached for an event: show "Event has started!" then check end time
+            var currentEvent = events[currentIndex];
+            var endTime = currentEvent && currentEvent.end ? new Date(currentEvent.end).getTime() : null;
+            if (endTime !== null && now >= endTime) {
+                // Event has ended: move to next event or collapse
+                if (currentIndex + 1 < events.length) {
+                    currentIndex++;
+                    currentTarget = events[currentIndex].datetime;
+                    return updateCountdown();
+                }
+                var section = countdownElement.closest('.countdown-section');
+                if (section) section.style.display = 'none';
+                return;
+            }
+            countdownElement.innerHTML = 'Event has started!';
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        const formatNumber = (num) => String(num).padStart(2, '0');
+
+        countdownElement.innerHTML = `
+            <div class="countdown-item">
+                <div class="countdown-box">
+                    <div class="countdown-flip">
+                        <span class="countdown-number">${formatNumber(days)}</span>
+                    </div>
+                </div>
+                <span class="countdown-label">DAYS</span>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-box">
+                    <div class="countdown-flip">
+                        <span class="countdown-number">${formatNumber(hours)}</span>
+                    </div>
+                </div>
+                <span class="countdown-label">HOURS</span>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-box">
+                    <div class="countdown-flip">
+                        <span class="countdown-number">${formatNumber(minutes)}</span>
+                    </div>
+                </div>
+                <span class="countdown-label">MINUTES</span>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-box">
+                    <div class="countdown-flip">
+                        <span class="countdown-number">${formatNumber(seconds)}</span>
+                    </div>
+                </div>
+                <span class="countdown-label">SECONDS</span>
+            </div>
+        `;
+    }
+
     updateCountdown();
     setInterval(updateCountdown, 1000);
-}
+})();
 
 // Dropdown menu toggle on click + mobile navbar toggle
 document.addEventListener('DOMContentLoaded', function() {
