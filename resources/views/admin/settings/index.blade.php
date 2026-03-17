@@ -98,4 +98,28 @@
             </form>
         </div>
     </div>
+
+    <div class="admin-card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">Ticket Scanner</h3>
+        </div>
+        <div class="card-body">
+            <p class="mb-2" style="font-size: 0.875rem;">Use this URL on a phone or tablet to scan participant QR codes. No login required.</p>
+            <div class="input-group input-group-sm mb-3" style="max-width: 100%;">
+                <input type="text"
+                       class="form-control font-monospace"
+                       value="{{ url(route('admin.scanner')) }}"
+                       id="scanner_url"
+                       readonly
+                       style="font-size: 0.8125rem;">
+                <button type="button" class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('scanner_url').value); this.textContent='Copied!'; setTimeout(function(){ this.textContent='Copy'; }.bind(this), 1500);" title="Copy URL">
+                    Copy
+                </button>
+            </div>
+            <a href="{{ route('admin.scanner') }}" target="_blank" rel="noopener noreferrer" class="btn-admin btn-admin-primary">
+                <i class="bi bi-qr-code-scan"></i>
+                Open Scanner Page
+            </a>
+        </div>
+    </div>
 @endsection

@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Admin\EventParticipantsController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\TicketScannerController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Models\Setting;
 use App\Models\Event;
@@ -131,7 +132,11 @@ Route::get('/api/event-categories', [ClientEventCategoryController::class, 'inde
 Route::get('/api/events', [ClientEventController::class, 'index'])->name('api.events');
 Route::get('/api/events/upcoming', [ClientEventController::class, 'upcoming'])->name('api.events.upcoming');
 
-// Admin Routes
+// Ticket Scanner (public – no login required)
+Route::get('/scanner', [TicketScannerController::class, 'index'])->name('admin.scanner');
+Route::post('/scanner/validate', [TicketScannerController::class, 'validateTicket'])->name('admin.scanner.validate');
+
+// Admin Routes (login required)
 Route::middleware(['prevent_guest_admin_when_not_maintenance', 'auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/users', [UserController::class, 'index'])->name('users');
