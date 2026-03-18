@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Client\ProfileController;
+use App\Models\AffiliateCode;
 use App\Models\Cart;
+use App\Models\CheckoutActivityLog;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\PromoCode;
-use App\Models\AffiliateCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -351,6 +352,39 @@ class CartController extends Controller
 
         if ($carts->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
+        }
+
+        // Log that the user has reached the checkout page, including cart details, promo and affiliate
+        try {
+            $cartSummary = $carts->map(function ($cart) {
+                return [
+                    'cart_id' => $cart->id,
+                    'event_id' => $cart->event_id,
+                    'event_name' => $cart->event?->name,
+                    'ticket_id' => $cart->ticket_id,
+                    'ticket_name' => $cart->ticket?->name,
+                    'quantity' => $cart->quantity,
+                    'unit_price' => $cart->ticket ? $cart->ticket->getPriceForQuantity($cart->quantity) : null,
+                ];
+            })->values()->all();
+
+            CheckoutActivityLog::create([
+                'user_id' => Auth::id(),
+                'flow' => 'checkout',
+                'action' => 'view_checkout_page',
+                'status' => 'started',
+                'payload' => [
+                    'cart_item_count' => $carts->count(),
+                    'cart_items' => $cartSummary,
+                    'promo_code' => session('cart_promo_code'),
+                    'promo_code_id' => session('cart_promo_code_id'),
+                    'affiliate_code' => session('checkout_affiliate_code'),
+                    'affiliate_code_id' => session('checkout_affiliate_code_id'),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            // Ignore logging failures
+            report($e);
         }
 
         // Group carts by event

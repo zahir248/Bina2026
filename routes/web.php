@@ -207,6 +207,7 @@ Route::middleware(['prevent_guest_admin_when_not_maintenance', 'auth'])->prefix(
     // Logs
     Route::prefix('logs')->name('logs.')->group(function () {
         Route::get('/email', [LogController::class, 'emailLog'])->name('email');
+        Route::get('/activity', [LogController::class, 'activityLog'])->name('activity');
     });
 
     // Settings

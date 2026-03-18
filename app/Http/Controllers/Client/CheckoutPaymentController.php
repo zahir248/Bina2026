@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\AffiliateCode;
 use App\Models\Cart;
+use App\Models\CheckoutActivityLog;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -167,6 +168,38 @@ class CheckoutPaymentController extends Controller
             ];
         }
 
+        // At this point we have full checkout data (cart + buyer + ticket holders + promo/affiliate)
+        $this->logCheckoutActivity([
+            'flow' => 'checkout',
+            'action' => 'create_payment_intent_request',
+            'status' => 'started',
+            'payload' => [
+                'buyer_snapshot' => $buyerSnapshot,
+                'ticket_holders' => $ticketHoldersSnapshot,
+                'order_items' => array_map(function ($item) {
+                    return [
+                        'ticket' => optional(\App\Models\Ticket::find($item['ticket_id']))->name,
+                        'event' => optional(Event::find($item['event_id']))->name,
+                        'quantity' => $item['quantity'],
+                        'unit_price_cents' => $item['unit_price_cents'],
+                        'unit_price_rm' => $item['unit_price_cents'] / 100,
+                    ];
+                }, $orderItemsPayload),
+                'cart_total_before_discount_rm' => $totalAmount,
+                'discount_amount_rm' => $discountAmount,
+                'total_after_discount_rm' => $totalAfterDiscount,
+                'subtotal_cents' => $subtotalCents,
+                'subtotal_rm' => $subtotalCents / 100,
+                'processing_fee_cents' => $processingFeeCents,
+                'processing_fee_rm' => $processingFeeCents / 100,
+                'total_amount_cents' => $amountCents,
+                'total_amount_rm' => $amountCents / 100,
+                'promo_code' => $appliedPromo?->code,
+                'affiliate_code' => session('checkout_affiliate_code'),
+                'payment_method_type' => $paymentMethodType,
+            ],
+        ]);
+
         $stripeSecret = config('services.stripe.secret');
         if (empty($stripeSecret)) {
             return response()->json(['error' => 'Stripe is not configured.'], 500);
@@ -182,6 +215,19 @@ class CheckoutPaymentController extends Controller
                 'payment_method_types' => $paymentMethodTypes,
                 'metadata' => [
                     'user_id' => (string) Auth::id(),
+                ],
+            ]);
+
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'payment_intent_created',
+                'status' => 'success',
+                'stripe_payment_intent_id' => $intent->id,
+                'payload' => [
+                    'amount_cents' => $amountCents,
+                    'subtotal_cents' => $subtotalCents,
+                    'processing_fee_cents' => $processingFeeCents,
+                    'payment_method_types' => $paymentMethodTypes,
                 ],
             ]);
 
@@ -205,8 +251,20 @@ class CheckoutPaymentController extends Controller
                 'paymentIntentId' => $intent->id,
             ]);
         } catch (ApiErrorException $e) {
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'payment_intent_error',
+                'status' => 'failed',
+                'message' => $e->getMessage(),
+            ]);
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Throwable $e) {
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'payment_intent_error',
+                'status' => 'failed',
+                'message' => $e->getMessage(),
+            ]);
             return response()->json(['error' => 'Unable to create payment. Please try again.'], 500);
         }
     }
@@ -228,6 +286,16 @@ class CheckoutPaymentController extends Controller
 
         $paymentIntentId = $request->input('payment_intent_id');
         $cardCountry = strtoupper($request->input('card_country'));
+
+        $this->logCheckoutActivity([
+            'flow' => 'checkout',
+            'action' => 'update_intent_amount_request',
+            'status' => 'started',
+            'stripe_payment_intent_id' => $paymentIntentId,
+            'payload' => [
+                'card_country' => $cardCountry,
+            ],
+        ]);
 
         if (session('checkout_pending_payment_intent_id') !== $paymentIntentId) {
             return response()->json(['error' => 'Invalid session.'], 400);
@@ -272,10 +340,35 @@ class CheckoutPaymentController extends Controller
             $stripe->paymentIntents->update($paymentIntentId, ['amount' => $newAmountCents]);
             $pending['total_amount_cents'] = $newAmountCents;
             session()->put('checkout_pending_data', $pending);
+
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'update_intent_amount_success',
+                'status' => 'success',
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'payload' => [
+                    'new_amount_cents' => $newAmountCents,
+                ],
+            ]);
+
             return response()->json(['success' => true, 'updated' => true, 'amount_cents' => $newAmountCents]);
         } catch (ApiErrorException $e) {
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'update_intent_amount_error',
+                'status' => 'failed',
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'message' => $e->getMessage(),
+            ]);
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Throwable $e) {
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'update_intent_amount_error',
+                'status' => 'failed',
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'message' => $e->getMessage(),
+            ]);
             return response()->json(['error' => 'Unable to update amount.'], 500);
         }
     }
@@ -321,6 +414,40 @@ class CheckoutPaymentController extends Controller
             ? $subtotalCents + $processingFeeCents
             : $subtotalCents;
 
+        // Log full snapshot for repay, similar to initial checkout createPaymentIntent
+        $order->loadMissing(['items.ticket', 'items.event']);
+        $repayItemsPayload = $order->items->map(function (OrderItem $item) {
+            return [
+                'ticket' => optional($item->ticket)->name,
+                'event' => optional($item->event)->name,
+                'quantity' => $item->quantity,
+                'unit_price_cents' => $item->unit_price_cents,
+                'unit_price_rm' => $item->unit_price_cents / 100,
+            ];
+        })->values()->all();
+
+        $this->logCheckoutActivity([
+            'flow' => 'repay',
+            'action' => 'repay_create_intent_request',
+            'status' => 'started',
+            'order_id' => $order->id,
+            'payload' => [
+                'payment_method_type' => $request->input('payment_method_type'),
+                'buyer_snapshot' => $order->buyer_snapshot ?? [],
+                'ticket_holders' => $order->ticket_holders_snapshot ?? [],
+                'order_items' => $repayItemsPayload,
+                'repay_subtotal_cents' => $subtotalCents,
+                'repay_subtotal_rm' => $subtotalCents / 100,
+                'repay_processing_fee_cents' => $processingFeeCents,
+                'repay_processing_fee_rm' => $processingFeeCents / 100,
+                'repay_total_amount_cents' => $amountCents,
+                'repay_total_amount_rm' => $amountCents / 100,
+                'amount_excludes_fee' => (bool) $order->amount_excludes_fee,
+                'promo_code' => optional($order->promoCode)->code,
+                'affiliate_code' => optional($order->affiliateCode)->code,
+            ],
+        ]);
+
         $currency = $order->currency ?? 'myr';
         if ($amountCents < 50) {
             return response()->json(['error' => 'Amount is too low to pay.'], 400);
@@ -343,6 +470,20 @@ class CheckoutPaymentController extends Controller
                     && $intentAmount === $amountCents
                     && $methodMatches
                 ) {
+                    $this->logCheckoutActivity([
+                        'flow' => 'repay',
+                        'action' => 'repay_reuse_existing_intent',
+                        'status' => 'success',
+                        'order_id' => $order->id,
+                        'stripe_payment_intent_id' => $existingPiId,
+                        'payload' => [
+                            'amount_cents' => $intentAmount,
+                            'amount_rm' => $intentAmount / 100,
+                            'payment_method_type' => $repayMethod,
+                            'repay_processing_fee_cents' => $processingFeeCents,
+                            'repay_processing_fee_rm' => $processingFeeCents / 100,
+                        ],
+                    ]);
                     return response()->json(['clientSecret' => $clientSecret]);
                 }
             } catch (\Throwable $e) {
@@ -374,10 +515,41 @@ class CheckoutPaymentController extends Controller
             session()->put('repay_order_id', $order->id);
             session()->put('repay_payment_intent_id', $intent->id);
 
+            $this->logCheckoutActivity([
+                'flow' => 'repay',
+                'action' => 'repay_new_intent_created',
+                'status' => 'success',
+                'order_id' => $order->id,
+                'stripe_payment_intent_id' => $intent->id,
+                'payload' => [
+                    'amount_cents' => $amountCents,
+                    'amount_rm' => $amountCents / 100,
+                    'payment_method_type' => $repayMethod,
+                    'repay_subtotal_cents' => $subtotalCents,
+                    'repay_subtotal_rm' => $subtotalCents / 100,
+                    'repay_processing_fee_cents' => $processingFeeCents,
+                    'repay_processing_fee_rm' => $processingFeeCents / 100,
+                ],
+            ]);
+
             return response()->json(['clientSecret' => $intent->client_secret]);
         } catch (ApiErrorException $e) {
+            $this->logCheckoutActivity([
+                'flow' => 'repay',
+                'action' => 'repay_create_intent_error',
+                'status' => 'failed',
+                'order_id' => $order->id,
+                'message' => $e->getMessage(),
+            ]);
             return response()->json(['error' => $e->getMessage()], 400);
         } catch (\Throwable $e) {
+            $this->logCheckoutActivity([
+                'flow' => 'repay',
+                'action' => 'repay_create_intent_error',
+                'status' => 'failed',
+                'order_id' => $order->id,
+                'message' => $e->getMessage(),
+            ]);
             return response()->json(['error' => 'Unable to create payment. Please try again.'], 500);
         }
     }
@@ -393,6 +565,16 @@ class CheckoutPaymentController extends Controller
             return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('error', 'Invalid return from payment. Please check your Purchase History.');
         }
 
+        $this->logCheckoutActivity([
+            'flow' => 'checkout',
+            'action' => 'payment_return',
+            'status' => 'started',
+            'stripe_payment_intent_id' => $paymentIntentId,
+            'payload' => [
+                'query' => $request->query(),
+            ],
+        ]);
+
         $stripeSecret = config('services.stripe.secret');
         if (empty($stripeSecret)) {
             return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('error', 'Payment could not be verified.');
@@ -402,6 +584,13 @@ class CheckoutPaymentController extends Controller
             $stripe = new StripeClient($stripeSecret);
             $intent = $stripe->paymentIntents->retrieve($paymentIntentId);
         } catch (\Throwable $e) {
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'payment_intent_retrieve_error',
+                'status' => 'failed',
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'message' => $e->getMessage(),
+            ]);
             return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('error', 'Could not verify payment.');
         }
 
@@ -437,14 +626,50 @@ class CheckoutPaymentController extends Controller
                 }
                 DB::commit();
                 $this->sendPaymentSuccessEmail($existingPendingOrder);
+                $processingFeeCentsRepay1 = $existingPendingOrder->amount_excludes_fee
+                    ? max(0, (int) $intent->amount - (int) $existingPendingOrder->total_amount_cents)
+                    : 0;
+                $this->logCheckoutActivity([
+                    'flow' => 'repay',
+                    'action' => 'repay_existing_order_paid',
+                    'status' => 'success',
+                    'order_id' => $existingPendingOrder->id,
+                    'stripe_payment_intent_id' => $paymentIntentId,
+                    'payload' => [
+                        'order_subtotal_cents' => (int) $existingPendingOrder->total_amount_cents,
+                        'order_subtotal_rm' => (int) $existingPendingOrder->total_amount_cents / 100,
+                        'processing_fee_cents' => $processingFeeCentsRepay1,
+                        'processing_fee_rm' => $processingFeeCentsRepay1 / 100,
+                        'total_amount_cents' => (int) $intent->amount,
+                        'total_amount_rm' => (int) $intent->amount / 100,
+                    ],
+                ]);
                 return redirect()->route('profile.purchaseHistory', ['tab' => 'completed'])->with('success', 'Payment successful. Thank you.');
             } catch (\Throwable $e) {
                 DB::rollBack();
+                $this->logCheckoutActivity([
+                    'flow' => 'repay',
+                    'action' => 'repay_existing_order_update_failed',
+                    'status' => 'failed',
+                    'order_id' => $existingPendingOrder->id,
+                    'stripe_payment_intent_id' => $paymentIntentId,
+                    'message' => $e->getMessage(),
+                ]);
             }
         }
 
         if ($existingPendingOrder) {
             $this->sendPaymentFailedEmail($existingPendingOrder);
+            $this->logCheckoutActivity([
+                'flow' => 'repay',
+                'action' => 'repay_existing_order_payment_failed',
+                'status' => 'failed',
+                'order_id' => $existingPendingOrder->id,
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'payload' => [
+                    'intent_status' => $intent->status,
+                ],
+            ]);
             return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('error', 'Payment was unsuccessful. Please try again.');
         }
 
@@ -523,6 +748,25 @@ class CheckoutPaymentController extends Controller
                             }
                             DB::commit();
                             $this->sendPaymentSuccessEmail($newOrder);
+                            $processingFeeCentsRepay2 = $order->amount_excludes_fee
+                                ? max(0, (int) $intent->amount - (int) $order->total_amount_cents)
+                                : 0;
+                            $this->logCheckoutActivity([
+                                'flow' => 'repay',
+                                'action' => 'repay_new_order_created',
+                                'status' => 'success',
+                                'order_id' => $newOrder->id,
+                                'stripe_payment_intent_id' => $paymentIntentId,
+                                'payload' => [
+                                    'old_order_id' => $order->id,
+                                    'order_subtotal_cents' => (int) $order->total_amount_cents,
+                                    'order_subtotal_rm' => (int) $order->total_amount_cents / 100,
+                                    'processing_fee_cents' => $processingFeeCentsRepay2,
+                                    'processing_fee_rm' => $processingFeeCentsRepay2 / 100,
+                                    'total_amount_cents' => (int) $intent->amount,
+                                    'total_amount_rm' => (int) $intent->amount / 100,
+                                ],
+                            ]);
                             return redirect()->route('profile.purchaseHistory', ['tab' => 'completed'])->with('success', 'Payment successful. Thank you.');
                         } else {
                             // Same payment method: update existing order to paid as before
@@ -548,10 +792,36 @@ class CheckoutPaymentController extends Controller
                             }
                             DB::commit();
                             $this->sendPaymentSuccessEmail($order);
+                            $processingFeeCentsRepay3 = $order->amount_excludes_fee
+                                ? max(0, (int) $intent->amount - (int) $order->total_amount_cents)
+                                : 0;
+                            $this->logCheckoutActivity([
+                                'flow' => 'repay',
+                                'action' => 'repay_existing_order_paid_same_method',
+                                'status' => 'success',
+                                'order_id' => $order->id,
+                                'stripe_payment_intent_id' => $paymentIntentId,
+                                'payload' => [
+                                    'order_subtotal_cents' => (int) $order->total_amount_cents,
+                                    'order_subtotal_rm' => (int) $order->total_amount_cents / 100,
+                                    'processing_fee_cents' => $processingFeeCentsRepay3,
+                                    'processing_fee_rm' => $processingFeeCentsRepay3 / 100,
+                                    'total_amount_cents' => (int) $intent->amount,
+                                    'total_amount_rm' => (int) $intent->amount / 100,
+                                ],
+                            ]);
                             return redirect()->route('profile.purchaseHistory', ['tab' => 'completed'])->with('success', 'Payment successful. Thank you.');
                         }
                     } catch (\Throwable $e) {
                         DB::rollBack();
+                        $this->logCheckoutActivity([
+                            'flow' => 'repay',
+                            'action' => 'repay_order_update_failed',
+                            'status' => 'failed',
+                            'order_id' => $order->id,
+                            'stripe_payment_intent_id' => $paymentIntentId,
+                            'message' => $e->getMessage(),
+                        ]);
                     }
                 }
             }
@@ -559,6 +829,16 @@ class CheckoutPaymentController extends Controller
             if ($order) {
                 $this->sendPaymentFailedEmail($order);
             }
+            $this->logCheckoutActivity([
+                'flow' => 'repay',
+                'action' => 'repay_order_payment_failed',
+                'status' => 'failed',
+                'order_id' => $order?->id,
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'payload' => [
+                    'intent_status' => $intent->status,
+                ],
+            ]);
             return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('error', 'Payment was unsuccessful. Please try again.');
         }
 
@@ -623,9 +903,35 @@ class CheckoutPaymentController extends Controller
                 session()->forget(['cart_promo_code_id', 'cart_promo_code', 'cart_promo_discount', 'checkout_pending_payment_intent_id', 'checkout_pending_data', 'checkout_affiliate_code_id', 'checkout_affiliate_code']);
                 DB::commit();
                 $this->sendPaymentSuccessEmail($order);
+                $this->logCheckoutActivity([
+                    'flow' => 'checkout',
+                    'action' => 'order_created_from_successful_payment',
+                    'status' => 'success',
+                    'order_id' => $order->id,
+                    'stripe_payment_intent_id' => $paymentIntentId,
+                    'payload' => [
+                        'amount_cents' => $intent->amount,
+                        'amount_rm' => $intent->amount / 100,
+                    ],
+                ]);
                 return redirect()->route('profile.purchaseHistory', ['tab' => 'completed'])->with('success', 'Payment successful. Thank you for your purchase.');
             } catch (\Throwable $e) {
                 DB::rollBack();
+                $this->logCheckoutActivity([
+                    'flow' => 'checkout',
+                    'action' => 'order_creation_failed_after_successful_payment',
+                    'status' => 'failed',
+                    'stripe_payment_intent_id' => $paymentIntentId,
+                    'message' => $e->getMessage(),
+                    'payload' => [
+                        'pending_data' => $pending,
+                        'intent' => [
+                            'id' => $intent->id ?? null,
+                            'amount' => $intent->amount ?? null,
+                            'status' => $intent->status ?? null,
+                        ],
+                    ],
+                ]);
                 return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('error', 'Order could not be completed. Please contact support.');
             }
         }
@@ -642,13 +948,53 @@ class CheckoutPaymentController extends Controller
             session()->forget(['cart_promo_code_id', 'cart_promo_code', 'cart_promo_discount', 'checkout_pending_payment_intent_id', 'checkout_pending_data', 'checkout_affiliate_code_id', 'checkout_affiliate_code']);
             DB::commit();
             $this->sendPaymentFailedEmail($order);
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'order_created_pending_after_failed_or_incomplete_payment',
+                'status' => 'success',
+                'order_id' => $order->id,
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'payload' => [
+                    'intent_status' => $intent->status,
+                ],
+            ]);
         } catch (\Throwable $e) {
             DB::rollBack();
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'pending_order_creation_failed',
+                'status' => 'failed',
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'message' => $e->getMessage(),
+                'payload' => [
+                    'pending_data' => $pending,
+                    'intent_status' => $intent->status,
+                ],
+            ]);
         }
 
         if (in_array($intent->status, ['canceled', 'requires_payment_method'], true)) {
+            $this->logCheckoutActivity([
+                'flow' => 'checkout',
+                'action' => 'payment_unsuccessful',
+                'status' => 'failed',
+                'stripe_payment_intent_id' => $paymentIntentId,
+                'payload' => [
+                    'intent_status' => $intent->status,
+                ],
+            ]);
             return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('error', 'Payment was unsuccessful. Please try again.');
         }
+
+        $this->logCheckoutActivity([
+            'flow' => 'checkout',
+            'action' => 'payment_processing',
+            'status' => 'pending',
+            'stripe_payment_intent_id' => $paymentIntentId,
+            'payload' => [
+                'intent_status' => $intent->status,
+            ],
+        ]);
 
         return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('info', 'Payment is still processing.');
     }
@@ -693,6 +1039,28 @@ class CheckoutPaymentController extends Controller
         try {
             Mail::to($email)->send(new PaymentFailedMail($order));
         } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
+    /**
+     * Store a checkout activity log entry, ignoring any logging failures.
+     */
+    private function logCheckoutActivity(array $data): void
+    {
+        try {
+            CheckoutActivityLog::create([
+                'user_id' => Auth::id(),
+                'order_id' => $data['order_id'] ?? null,
+                'stripe_payment_intent_id' => $data['stripe_payment_intent_id'] ?? null,
+                'flow' => $data['flow'] ?? 'checkout',
+                'action' => $data['action'] ?? 'unknown',
+                'status' => $data['status'] ?? null,
+                'message' => $data['message'] ?? null,
+                'payload' => $data['payload'] ?? null,
+            ]);
+        } catch (\Throwable $e) {
+            // Never break the checkout flow because of logging problems
             report($e);
         }
     }

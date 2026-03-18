@@ -568,6 +568,12 @@
                                 <span>Email log</span>
                             </a>
                         </li>
+                        <li class="nav-submenu-item">
+                            <a href="{{ route('admin.logs.activity') }}" class="nav-submenu-link {{ request()->routeIs('admin.logs.activity') ? 'active' : '' }}">
+                                <i class="bi bi-credit-card"></i>
+                                <span>Activity log</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <div class="nav-item">
