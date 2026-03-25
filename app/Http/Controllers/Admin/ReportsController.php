@@ -7,12 +7,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Setting;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportsController extends Controller
 {
+    private function hideTestPaymentDataEnabled(): bool
+    {
+        return Setting::get(SettingsController::KEY_HIDE_TEST_PAYMENT_DATA_IN_ADMIN, '0') === '1';
+    }
+
     public function index(Request $request)
     {
         if (!auth()->check() || auth()->user()->role !== 'admin') {
@@ -36,6 +42,9 @@ class ReportsController extends Controller
         }
 
         $baseQuery = Order::query()->where('status', 'paid');
+        if ($this->hideTestPaymentDataEnabled()) {
+            $baseQuery->where('stripe_test_mode', false);
+        }
         if ($orderIdsForEvent !== null) {
             $baseQuery->whereIn('id', $orderIdsForEvent);
         }
@@ -50,6 +59,9 @@ class ReportsController extends Controller
         $orderCount = (clone $baseQuery)->count();
 
         $refundedQuery = Order::query()->whereIn('refund_status', ['approved', 'completed']);
+        if ($this->hideTestPaymentDataEnabled()) {
+            $refundedQuery->where('stripe_test_mode', false);
+        }
         if ($orderIdsForEvent !== null) {
             $refundedQuery->whereIn('id', $orderIdsForEvent);
         }
@@ -97,6 +109,9 @@ class ReportsController extends Controller
         }
 
         $baseQuery = Order::query()->where('status', 'paid');
+        if ($this->hideTestPaymentDataEnabled()) {
+            $baseQuery->where('stripe_test_mode', false);
+        }
         if ($orderIdsForEvent !== null) {
             $baseQuery->whereIn('id', $orderIdsForEvent);
         }
@@ -108,6 +123,9 @@ class ReportsController extends Controller
         $orderCount = (clone $baseQuery)->count();
 
         $refundedQuery = Order::query()->whereIn('refund_status', ['approved', 'completed']);
+        if ($this->hideTestPaymentDataEnabled()) {
+            $refundedQuery->where('stripe_test_mode', false);
+        }
         if ($orderIdsForEvent !== null) {
             $refundedQuery->whereIn('id', $orderIdsForEvent);
         }
@@ -153,7 +171,12 @@ class ReportsController extends Controller
     private function getTicketTypeStats(string $eventFilter): \Illuminate\Support\Collection
     {
         $salesQuery = OrderItem::query()
-            ->whereHas('order', fn ($q) => $q->where('status', 'paid'))
+            ->whereHas('order', function ($q) {
+                $q->where('status', 'paid');
+                if ($this->hideTestPaymentDataEnabled()) {
+                    $q->where('stripe_test_mode', false);
+                }
+            })
             ->selectRaw('ticket_id, event_id, SUM(quantity) as total_sold, SUM(unit_price_cents * quantity) as total_sales_cents')
             ->groupBy('ticket_id', 'event_id');
 
@@ -218,6 +241,10 @@ class ReportsController extends Controller
             ->where('status', 'paid')
             ->with('items');
 
+        if ($this->hideTestPaymentDataEnabled()) {
+            $orders->where('stripe_test_mode', false);
+        }
+
         if (!empty($eventFilter)) {
             $orders->whereHas('items', fn ($q) => $q->where('event_id', $eventFilter));
         }
@@ -253,6 +280,10 @@ class ReportsController extends Controller
         $orders = Order::query()
             ->where('status', 'paid')
             ->with(['items', 'promoCode']);
+
+        if ($this->hideTestPaymentDataEnabled()) {
+            $orders->where('stripe_test_mode', false);
+        }
 
         if (!empty($eventFilter)) {
             $orders->whereHas('items', fn ($q) => $q->where('event_id', $eventFilter));
@@ -294,7 +325,12 @@ class ReportsController extends Controller
     private function getTotalParticipants(string $eventFilter): int
     {
         $query = OrderItem::query()
-            ->whereHas('order', fn ($q) => $q->where('status', 'paid'));
+            ->whereHas('order', function ($q) {
+                $q->where('status', 'paid');
+                if ($this->hideTestPaymentDataEnabled()) {
+                    $q->where('stripe_test_mode', false);
+                }
+            });
         if (!empty($eventFilter)) {
             $query->where('event_id', $eventFilter);
         }
@@ -307,14 +343,24 @@ class ReportsController extends Controller
     private function getRevenueCents(string $eventFilter): int
     {
         if (empty($eventFilter)) {
-            return (int) Order::query()
-                ->where('status', 'paid')
-                ->sum('total_amount_cents');
+            $query = Order::query()
+                ->where('status', 'paid');
+
+            if ($this->hideTestPaymentDataEnabled()) {
+                $query->where('stripe_test_mode', false);
+            }
+
+            return (int) $query->sum('total_amount_cents');
         }
 
         return (int) (OrderItem::query()
             ->where('event_id', $eventFilter)
-            ->whereHas('order', fn ($q) => $q->where('status', 'paid'))
+            ->whereHas('order', function ($q) {
+                $q->where('status', 'paid');
+                if ($this->hideTestPaymentDataEnabled()) {
+                    $q->where('stripe_test_mode', false);
+                }
+            })
             ->selectRaw('SUM(unit_price_cents * quantity) as total')
             ->value('total') ?? 0);
     }

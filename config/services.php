@@ -44,6 +44,8 @@ return [
     'stripe' => [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
+        'test_key' => env('STRIPE_TEST_KEY'),
+        'test_secret' => env('STRIPE_TEST_SECRET'),
         // Pass Stripe processing fee to customer. See: https://stripe.com/en-my/pricing
         // Domestic (FPX / Malaysia card): fee_percentage + fee_fixed_cents. International card: fee_percentage_international + fee_fixed_cents.
         'fee_percentage' => (float) env('STRIPE_FEE_PERCENTAGE', 0),

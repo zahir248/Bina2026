@@ -8,6 +8,8 @@ use App\Mail\RefundApprovedMail;
 use App\Mail\RefundRejectedMail;
 use App\Models\Event;
 use App\Models\Order;
+use App\Models\Setting;
+use App\Support\StripeConfig;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
@@ -102,9 +104,19 @@ class OrderController extends Controller
             $query->where('status', 'paid')->where('refund_status', $refundStatusFilter);
         }
 
+        if ($this->hideTestPaymentDataEnabled()) {
+            // Hide Stripe test-mode payments from admin listing/export pages.
+            $query->where('stripe_test_mode', false);
+        }
+
         $query->orderBy('created_at', 'desc');
 
         return $query;
+    }
+
+    private function hideTestPaymentDataEnabled(): bool
+    {
+        return Setting::get(SettingsController::KEY_HIDE_TEST_PAYMENT_DATA_IN_ADMIN, '0') === '1';
     }
 
     /**
@@ -164,7 +176,7 @@ class OrderController extends Controller
                 ->with('error', 'This order has no payment to refund.');
         }
 
-        $stripeSecret = config('services.stripe.secret');
+        $stripeSecret = StripeConfig::secret((bool) $order->stripe_test_mode);
         if (empty($stripeSecret)) {
             return redirect()
                 ->route('admin.orders', ['refund_orders' => 1])

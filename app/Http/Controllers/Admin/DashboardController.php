@@ -4,11 +4,17 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class DashboardController extends Controller
 {
+    private function hideTestPaymentDataEnabled(): bool
+    {
+        return Setting::get(SettingsController::KEY_HIDE_TEST_PAYMENT_DATA_IN_ADMIN, '0') === '1';
+    }
+
     public function index()
     {
         // Check if user is authenticated and is admin
@@ -23,6 +29,10 @@ class DashboardController extends Controller
             })
             ->get();
 
+        if ($this->hideTestPaymentDataEnabled()) {
+            $paidOrders = $paidOrders->where('stripe_test_mode', false)->values();
+        }
+
         $genderDistribution = $this->buildGenderDistribution($paidOrders);
         $buyerCategoryDistribution = $this->buildBuyerCategoryDistribution($paidOrders);
         $buyerCountryDistribution = $this->buildBuyerCountryDistribution($paidOrders);
@@ -32,13 +42,26 @@ class DashboardController extends Controller
             ->limit(15)
             ->get();
 
-        $totalOrdersCount = Order::count();
+        if ($this->hideTestPaymentDataEnabled()) {
+            $recentOrders = $recentOrders->where('stripe_test_mode', false)->values();
+        }
 
-        $totalRevenueCents = Order::where('status', 'paid')
+        $ordersCountQuery = Order::query();
+        if ($this->hideTestPaymentDataEnabled()) {
+            $ordersCountQuery->where('stripe_test_mode', false);
+        }
+        $totalOrdersCount = $ordersCountQuery->count();
+
+        $revenueQuery = Order::query()->where('status', 'paid')
             ->where(function ($q) {
                 $q->whereNull('refund_status')->orWhere('refund_status', 'rejected');
-            })
-            ->sum('total_amount_cents');
+            });
+
+        if ($this->hideTestPaymentDataEnabled()) {
+            $revenueQuery->where('stripe_test_mode', false);
+        }
+
+        $totalRevenueCents = $revenueQuery->sum('total_amount_cents');
 
         return view('admin.dashboard', [
             'genderDistribution' => $genderDistribution,

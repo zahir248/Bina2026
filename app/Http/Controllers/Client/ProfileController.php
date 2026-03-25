@@ -9,6 +9,7 @@ use App\Mail\RefundRequestedMail;
 use App\Models\Event;
 use App\Models\Setting;
 use App\Models\Order;
+use App\Support\StripeConfig;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
@@ -213,10 +214,14 @@ class ProfileController extends Controller
             : null;
         $feeCurrencyNote = '+ 2% if currency conversion is required';
 
+        $showPurchaseHistoryStripeTestBanner = StripeConfig::adminPaymentTestModeEnabled()
+            || (clone $baseQuery)->where('status', 'pending')->where('stripe_test_mode', true)->exists();
+
         return view('client.profile.purchase-history', [
             'orders'             => $orders,
             'activeTab'          => $activeTab,
             'counts'             => $counts,
+            'showPurchaseHistoryStripeTestBanner' => $showPurchaseHistoryStripeTestBanner,
             'feeDomesticLabel'   => $feeDomesticLabel,
             'feeInternationalExtra' => $feeInternationalExtra,
             'feeCurrencyNote'    => $feeCurrencyNote,
@@ -264,7 +269,7 @@ class ProfileController extends Controller
         ]);
 
         $paymentIntentId = $order->stripe_payment_intent_id;
-        $stripeSecret = config('services.stripe.secret');
+        $stripeSecret = StripeConfig::secret((bool) $order->stripe_test_mode);
 
         if ($paymentIntentId && $stripeSecret) {
             try {

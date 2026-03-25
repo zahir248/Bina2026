@@ -10,6 +10,7 @@ use App\Models\Event;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PromoCode;
+use App\Support\StripeConfig;
 use App\Mail\PaymentFailedMail;
 use App\Mail\PaymentSuccessMail;
 use App\Mail\TicketHolderPaymentSuccessMail;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Stripe\PaymentIntent;
 use Stripe\StripeClient;
 use Stripe\Exception\ApiErrorException;
 
@@ -200,7 +202,8 @@ class CheckoutPaymentController extends Controller
             ],
         ]);
 
-        $stripeSecret = config('services.stripe.secret');
+        $useStripeTest = StripeConfig::adminPaymentTestModeEnabled();
+        $stripeSecret = StripeConfig::secret($useStripeTest);
         if (empty($stripeSecret)) {
             return response()->json(['error' => 'Stripe is not configured.'], 500);
         }
@@ -244,6 +247,7 @@ class CheckoutPaymentController extends Controller
                 'affiliate_code_id' => session('checkout_affiliate_code_id'),
                 'order_items' => $orderItemsPayload,
                 'client_secret' => $intent->client_secret,
+                'stripe_test_mode' => $useStripeTest,
             ]);
 
             return response()->json([
@@ -326,7 +330,8 @@ class CheckoutPaymentController extends Controller
             return response()->json(['error' => 'Amount too low.'], 400);
         }
 
-        $stripeSecret = config('services.stripe.secret');
+        $pendingForSecret = session('checkout_pending_data', []);
+        $stripeSecret = StripeConfig::secret(!empty($pendingForSecret['stripe_test_mode']));
         if (empty($stripeSecret)) {
             return response()->json(['error' => 'Stripe not configured.'], 500);
         }
@@ -389,7 +394,8 @@ class CheckoutPaymentController extends Controller
 
         $request->validate(['payment_method_type' => 'required|in:card,fpx']);
 
-        $stripeSecret = config('services.stripe.secret');
+        $useStripeTest = (bool) $order->stripe_test_mode;
+        $stripeSecret = StripeConfig::secret($useStripeTest);
         if (empty($stripeSecret)) {
             return response()->json(['error' => 'Stripe is not configured.'], 500);
         }
@@ -575,14 +581,8 @@ class CheckoutPaymentController extends Controller
             ],
         ]);
 
-        $stripeSecret = config('services.stripe.secret');
-        if (empty($stripeSecret)) {
-            return redirect()->route('profile.purchaseHistory', ['tab' => 'to_pay'])->with('error', 'Payment could not be verified.');
-        }
-
         try {
-            $stripe = new StripeClient($stripeSecret);
-            $intent = $stripe->paymentIntents->retrieve($paymentIntentId);
+            $intent = $this->retrieveCheckoutPaymentIntent($paymentIntentId);
         } catch (\Throwable $e) {
             $this->logCheckoutActivity([
                 'flow' => 'checkout',
@@ -718,6 +718,7 @@ class CheckoutPaymentController extends Controller
                                 'currency' => $order->currency ?? 'myr',
                                 'status' => 'paid',
                                 'stripe_payment_intent_id' => $paymentIntentId,
+                                'stripe_test_mode' => (bool) $order->stripe_test_mode,
                                 'payment_method' => $newMethod,
                                 'buyer_snapshot' => $order->buyer_snapshot ?? [],
                                 'ticket_holders_snapshot' => $order->ticket_holders_snapshot ?? [],
@@ -865,6 +866,7 @@ class CheckoutPaymentController extends Controller
                 'currency' => $pending['currency'] ?? 'myr',
                 'status' => $status,
                 'stripe_payment_intent_id' => $paymentIntentId,
+                'stripe_test_mode' => !empty($pending['stripe_test_mode']),
                 'payment_method' => $pending['payment_method'] ?? null,
                 'buyer_snapshot' => $pending['buyer_snapshot'] ?? [],
                 'ticket_holders_snapshot' => $pending['ticket_holders_snapshot'] ?? [],
@@ -1041,6 +1043,51 @@ class CheckoutPaymentController extends Controller
         } catch (\Throwable $e) {
             report($e);
         }
+    }
+
+    /**
+     * Load the PaymentIntent using the correct Stripe account (order, session, or trial of test/live secrets).
+     */
+    private function retrieveCheckoutPaymentIntent(string $paymentIntentId): PaymentIntent
+    {
+        $order = Order::where('stripe_payment_intent_id', $paymentIntentId)->first();
+        if ($order) {
+            $secret = StripeConfig::secret((bool) $order->stripe_test_mode);
+            if (!empty($secret)) {
+                $stripe = new StripeClient($secret);
+
+                return $stripe->paymentIntents->retrieve($paymentIntentId);
+            }
+        }
+
+        if (session('checkout_pending_payment_intent_id') === $paymentIntentId) {
+            $pending = session('checkout_pending_data', []);
+            $secret = StripeConfig::secret(!empty($pending['stripe_test_mode']));
+            if (!empty($secret)) {
+                $stripe = new StripeClient($secret);
+
+                return $stripe->paymentIntents->retrieve($paymentIntentId);
+            }
+        }
+
+        $tryTestFirst = StripeConfig::adminPaymentTestModeEnabled();
+        $modes = $tryTestFirst ? [true, false] : [false, true];
+        $lastException = null;
+        foreach ($modes as $test) {
+            $secret = StripeConfig::secret($test);
+            if (empty($secret)) {
+                continue;
+            }
+            try {
+                $stripe = new StripeClient($secret);
+
+                return $stripe->paymentIntents->retrieve($paymentIntentId);
+            } catch (\Throwable $e) {
+                $lastException = $e;
+            }
+        }
+
+        throw $lastException ?? new \RuntimeException('Could not verify payment.');
     }
 
     /**

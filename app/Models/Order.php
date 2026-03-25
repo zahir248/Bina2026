@@ -15,6 +15,7 @@ class Order extends Model
         'currency',
         'status',
         'stripe_payment_intent_id',
+        'stripe_test_mode',
         'stripe_client_secret_encrypted',
         'payment_method',
         'buyer_snapshot',
@@ -27,6 +28,7 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'stripe_test_mode' => 'boolean',
         'amount_excludes_fee' => 'boolean',
         'buyer_snapshot' => 'array',
         'ticket_holders_snapshot' => 'array',

@@ -5,10 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\EmailLog;
 use App\Models\CheckoutActivityLog;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 
 class LogController extends Controller
 {
+    private function hideTestPaymentDataEnabled(): bool
+    {
+        return Setting::get(SettingsController::KEY_HIDE_TEST_PAYMENT_DATA_IN_ADMIN, '0') === '1';
+    }
+
     public function emailLog(Request $request)
     {
         if (!auth()->check() || auth()->user()->role !== 'admin') {
@@ -68,6 +74,17 @@ class LogController extends Controller
 
         if ($flowFilter !== '') {
             $query->where('flow', $flowFilter);
+        }
+
+        if ($this->hideTestPaymentDataEnabled()) {
+            // Keep logs that are not linked to an order (order_id is NULL),
+            // but hide logs linked to Stripe test-mode orders.
+            $query->where(function ($q) {
+                $q->whereNull('order_id')
+                    ->orWhereHas('order', function ($oq) {
+                        $oq->where('stripe_test_mode', false);
+                    });
+            });
         }
 
         $logs = $query->get();

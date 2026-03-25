@@ -12,6 +12,13 @@
                 <p class="checkout-page-subtitle">Please review your details and complete your purchase.</p>
             </div>
 
+            @if(\App\Support\StripeConfig::adminPaymentTestModeEnabled())
+            <div class="checkout-stripe-test-banner" role="status" aria-live="polite">
+                <span class="checkout-stripe-test-banner__badge">Test mode</span>
+                <span class="checkout-stripe-test-banner__text">Stripe test keys are active. No real card charges—use test cards only.</span>
+            </div>
+            @endif
+
             <div class="checkout-page-content">
                 @php
                     $buyerProfileForJs = [
@@ -449,6 +456,39 @@
     color: #6B7280;
     font-family: 'Inter', sans-serif;
     line-height: 1.4;
+}
+
+.checkout-stripe-test-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1rem;
+    margin: 0 auto 1.5rem;
+    max-width: 720px;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(245, 158, 11, 0.12);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: #78350f;
+    line-height: 1.45;
+}
+.checkout-stripe-test-banner__badge {
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.5rem;
+    background: #b45309;
+    color: #fff;
+    border-radius: 4px;
+}
+.checkout-stripe-test-banner__text {
+    text-align: center;
 }
 
 .checkout-page-content {
@@ -1416,7 +1456,7 @@ body.payment-modal-open {
 @push('scripts')
 @php
     $checkoutPaymentConfig = [
-        'stripeKey' => config('services.stripe.key'),
+        'stripeKey' => \App\Support\StripeConfig::publishableKey(),
         'createPaymentIntentUrl' => route('checkout.createPaymentIntent'),
         'updateIntentAmountUrl' => route('checkout.updateIntentAmount'),
         'paymentSuccessUrl' => url()->route('checkout.paymentSuccess'),

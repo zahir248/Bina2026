@@ -6,12 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Setting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class EventParticipantsController extends Controller
 {
+    private function hideTestPaymentDataEnabled(): bool
+    {
+        return Setting::get(SettingsController::KEY_HIDE_TEST_PAYMENT_DATA_IN_ADMIN, '0') === '1';
+    }
+
     public function index(Request $request)
     {
         if (!auth()->check() || auth()->user()->role !== 'admin') {
@@ -68,6 +74,10 @@ class EventParticipantsController extends Controller
                     })
                     ->orderBy('created_at', 'desc')
                     ->get();
+
+                if ($this->hideTestPaymentDataEnabled()) {
+                    $orders = $orders->where('stripe_test_mode', false)->values();
+                }
 
                 foreach ($orders as $order) {
                     $holders = $order->ticket_holders_snapshot ?? [];

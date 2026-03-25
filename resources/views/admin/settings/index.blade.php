@@ -15,6 +15,8 @@
                 <input type="hidden" name="maintenance_mode" value="{{ old('maintenance_mode', ($maintenanceMode ?? false) ? '1' : '0') }}">
                 <input type="hidden" name="countdown_enabled" value="{{ old('countdown_enabled', ($countdownEnabled ?? true) ? '1' : '0') }}">
                 <input type="hidden" name="countdown_target_datetime" value="{{ old('countdown_target_datetime', $countdownTargetDatetime ?? '') }}">
+                <input type="hidden" name="stripe_payment_test_mode" value="{{ old('stripe_payment_test_mode', ($stripePaymentTestMode ?? false) ? '1' : '0') }}">
+                <input type="hidden" name="hide_test_payment_data_in_admin" value="{{ old('hide_test_payment_data_in_admin', ($hideTestPaymentDataInAdmin ?? false) ? '1' : '0') }}">
                 <div class="mb-4">
                     <label for="admin_notification_email" class="form-label" style="font-size: 0.875rem; font-weight: 500;">Email for admin notifications</label>
                     <input type="email"
@@ -49,6 +51,8 @@
                 <input type="hidden" name="admin_notification_email" value="{{ old('admin_notification_email', $adminNotificationEmail) }}">
                 <input type="hidden" name="countdown_enabled" value="{{ old('countdown_enabled', ($countdownEnabled ?? true) ? '1' : '0') }}">
                 <input type="hidden" name="countdown_target_datetime" value="{{ old('countdown_target_datetime', $countdownTargetDatetime ?? '') }}">
+                <input type="hidden" name="stripe_payment_test_mode" value="{{ old('stripe_payment_test_mode', ($stripePaymentTestMode ?? false) ? '1' : '0') }}">
+                <input type="hidden" name="hide_test_payment_data_in_admin" value="{{ old('hide_test_payment_data_in_admin', ($hideTestPaymentDataInAdmin ?? false) ? '1' : '0') }}">
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" type="checkbox" name="maintenance_mode" id="maintenance_mode" value="1"
                            {{ old('maintenance_mode', $maintenanceMode ?? false) ? 'checked' : '' }}>
@@ -73,6 +77,8 @@
                 @method('PUT')
                 <input type="hidden" name="admin_notification_email" value="{{ old('admin_notification_email', $adminNotificationEmail) }}">
                 <input type="hidden" name="maintenance_mode" value="{{ old('maintenance_mode', ($maintenanceMode ?? false) ? '1' : '0') }}">
+                <input type="hidden" name="stripe_payment_test_mode" value="{{ old('stripe_payment_test_mode', ($stripePaymentTestMode ?? false) ? '1' : '0') }}">
+                <input type="hidden" name="hide_test_payment_data_in_admin" value="{{ old('hide_test_payment_data_in_admin', ($hideTestPaymentDataInAdmin ?? false) ? '1' : '0') }}">
                 <div class="form-check form-switch mb-3">
                     <input class="form-check-input" type="checkbox" name="countdown_enabled" id="countdown_enabled" value="1"
                            {{ old('countdown_enabled', $countdownEnabled ?? true) ? 'checked' : '' }}>
@@ -91,6 +97,41 @@
                     @enderror
                 </div>
                 <div class="form-text mb-3">When disabled, the countdown section will be hidden on the homepage.</div>
+                <button type="submit" class="btn-admin btn-admin-primary">
+                    <i class="bi bi-check-lg"></i>
+                    Save settings
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="admin-card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">Stripe payments</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ route('admin.settings.update') }}" class="mb-0">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="admin_notification_email" value="{{ old('admin_notification_email', $adminNotificationEmail) }}">
+                <input type="hidden" name="maintenance_mode" value="{{ old('maintenance_mode', ($maintenanceMode ?? false) ? '1' : '0') }}">
+                <input type="hidden" name="countdown_enabled" value="{{ old('countdown_enabled', ($countdownEnabled ?? true) ? '1' : '0') }}">
+                <input type="hidden" name="countdown_target_datetime" value="{{ old('countdown_target_datetime', $countdownTargetDatetime ?? '') }}">
+                <input type="hidden" name="stripe_payment_test_mode" value="0">
+                <input type="hidden" name="hide_test_payment_data_in_admin" value="0">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" name="stripe_payment_test_mode" id="stripe_payment_test_mode" value="1"
+                           {{ old('stripe_payment_test_mode', ($stripePaymentTestMode ?? false) ? '1' : '0') === '1' ? 'checked' : '' }}>
+                    <label class="form-check-label" for="stripe_payment_test_mode">Use Stripe test mode for checkout</label>
+                </div>
+                <div class="form-text mb-3">When enabled, checkout and new payments use your <code>STRIPE_TEST_KEY</code> and <code>STRIPE_TEST_SECRET</code> from <code>.env</code>. Live keys (<code>STRIPE_KEY</code> / <code>STRIPE_SECRET</code>) are used when this is off. Existing pending orders keep the mode they were created with. Turn off before accepting real payments.</div>
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" name="hide_test_payment_data_in_admin" id="hide_test_payment_data_in_admin" value="1"
+                           {{ old('hide_test_payment_data_in_admin', ($hideTestPaymentDataInAdmin ?? false) ? '1' : '0') === '1' ? 'checked' : '' }}>
+                    <label class="form-check-label" for="hide_test_payment_data_in_admin">Hide test payment data in admin pages</label>
+                </div>
+                <div class="form-text mb-3">When enabled, admin pages like <code>Dashboard</code>, <code>Orders</code>, <code>Reports</code>, <code>Event Participants</code>, and <code>Logs (Activity)</code> will not show orders that were created in Stripe test mode.</div>
                 <button type="submit" class="btn-admin btn-admin-primary">
                     <i class="bi bi-check-lg"></i>
                     Save settings

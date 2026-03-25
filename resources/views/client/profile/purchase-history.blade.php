@@ -11,6 +11,13 @@
                 <p class="profile-page-subtitle">View your past orders.</p>
             </div>
 
+            @if(!empty($showPurchaseHistoryStripeTestBanner))
+            <div class="purchase-history-stripe-test-banner" role="status" aria-live="polite">
+                <span class="purchase-history-stripe-test-banner__badge">Test mode</span>
+                <span class="purchase-history-stripe-test-banner__text">Stripe test keys are active. No real card charges—use test cards for checkout and repay.</span>
+            </div>
+            @endif
+
             <nav class="purchase-history-tabs" aria-label="Order status">
                 <a href="{{ route('profile.purchaseHistory', ['tab' => 'to_pay']) }}" class="purchase-history-tab {{ $activeTab === 'to_pay' ? 'active' : '' }}">
                     To Pay
@@ -83,7 +90,8 @@
                                                             data-create-repay-url="{{ route('profile.order.createRepayIntent', $order) }}"
                                                             data-order-subtotal-cents="{{ $order->total_amount_cents }}"
                                                             data-order-amount-excludes-fee="{{ $order->amount_excludes_fee ? '1' : '0' }}"
-                                                            data-order-payment-method="{{ strtolower($order->payment_method ?? '') }}">Make payment</button>
+                                                            data-order-payment-method="{{ strtolower($order->payment_method ?? '') }}"
+                                                            data-stripe-publishable-key="{{ \App\Support\StripeConfig::publishableKey((bool) $order->stripe_test_mode) }}">Make payment</button>
                                                         <button type="button" class="purchase-history-action-link purchase-history-btn-cancel-open" title="Cancel order" aria-label="Cancel order"
                                                             data-cancel-url="{{ route('profile.order.cancel', $order) }}">Cancel</button>
                                                     @endif
@@ -378,6 +386,39 @@
     color: #6B7280;
     font-family: 'Inter', sans-serif;
     line-height: 1.4;
+}
+
+.purchase-history-stripe-test-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1rem;
+    margin: 0 auto 1.25rem;
+    max-width: 640px;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(245, 158, 11, 0.12);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: #78350f;
+    line-height: 1.45;
+}
+.purchase-history-stripe-test-banner__badge {
+    flex-shrink: 0;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.5rem;
+    background: #b45309;
+    color: #fff;
+    border-radius: 4px;
+}
+.purchase-history-stripe-test-banner__text {
+    text-align: center;
 }
 
 .purchase-history-tabs {
@@ -1440,7 +1481,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Repay modal (Stripe) – same as checkout choose payment method (fees, order summary)
     @php
         $repayConfigForJs = [
-            'stripeKey' => config('services.stripe.key'),
+            'stripeKey' => \App\Support\StripeConfig::publishableKey(),
             'paymentSuccessUrl' => route('checkout.paymentSuccess'),
             'csrfToken' => csrf_token(),
             'feeConfig' => $repayFeeConfig ?? ['fee_percentage' => 0, 'fee_percentage_international' => 0, 'fee_fixed_cents' => 0],
@@ -1456,6 +1497,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var repayModalError = document.getElementById('repay-modal-error');
     var repayModalClose = document.getElementById('repay-modal-close');
     var currentRepayUrl = null;
+    var currentRepayStripeKey = null;
     var currentRepayMethod = null;
     var repayIntentCreated = false;
     var repayStripe = null;
@@ -1562,6 +1604,7 @@ document.addEventListener('DOMContentLoaded', function() {
             repayModal.setAttribute('aria-hidden', 'true');
         }
         currentRepayUrl = null;
+        currentRepayStripeKey = null;
         currentRepayMethod = null;
         repayIntentCreated = false;
         repayClientSecret = null;
@@ -1618,12 +1661,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function initRepayStripeAndMount(clientSecret, method) {
-        if (!repayConfig.stripeKey) {
+        var stripePk = currentRepayStripeKey || repayConfig.stripeKey;
+        if (!stripePk) {
             repayModalError.textContent = 'Payment is not configured.';
             repayModalError.style.display = 'block';
             return;
         }
-        repayStripe = window.Stripe ? window.Stripe(repayConfig.stripeKey) : null;
+        repayStripe = window.Stripe ? window.Stripe(stripePk) : null;
         if (!repayStripe) {
             repayModalError.textContent = 'Payment provider failed to load.';
             repayModalError.style.display = 'block';
@@ -1723,6 +1767,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.purchase-history-btn-repay').forEach(function(btn) {
         btn.addEventListener('click', function() {
             currentRepayUrl = this.getAttribute('data-create-repay-url');
+            currentRepayStripeKey = this.getAttribute('data-stripe-publishable-key') || repayConfig.stripeKey || '';
             var subtotalCents = parseInt(this.getAttribute('data-order-subtotal-cents'), 10) || 0;
             var amountExcludesFee = this.getAttribute('data-order-amount-excludes-fee') === '1';
             var orderPaymentMethod = (this.getAttribute('data-order-payment-method') || '').toLowerCase();
