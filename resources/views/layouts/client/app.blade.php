@@ -85,15 +85,15 @@
                 @endunless
                 @auth
                 <li class="nav-icon">
-                    <a href="{{ route('cart.index') }}" aria-label="Cart" class="cart-toggle">
-                        <i class="bi bi-cart"></i>
-                    </a>
                     @php
                         $cartTotal = \App\Models\Cart::where('user_id', auth()->id())->sum('quantity');
                     @endphp
-                    @if($cartTotal > 0)
-                        <span class="cart-badge">{{ $cartTotal }}</span>
-                    @endif
+                    <a href="{{ route('cart.index') }}" aria-label="Cart{{ $cartTotal > 0 ? ', ' . $cartTotal . ' ' . ($cartTotal === 1 ? 'item' : 'items') : '' }}" class="cart-toggle">
+                        <i class="bi bi-cart" aria-hidden="true"></i>
+                        @if($cartTotal > 0)
+                            <span class="cart-badge">{{ $cartTotal }}</span>
+                        @endif
+                    </a>
                 </li>
                 @endauth
                 <li class="nav-auth">

@@ -467,10 +467,14 @@ body {
     cursor: pointer;
     color: var(--text-white) !important;
     text-decoration: none;
-    filter: brightness(0) invert(1);
     position: relative;
     display: inline-flex;
     align-items: center;
+}
+
+/* Whiten cart glyph only — badge must not inherit parent filter or it inverts red to wrong color */
+.nav-icon > a .bi {
+    filter: brightness(0) invert(1);
 }
 
 .cart-toggle {
@@ -479,9 +483,9 @@ body {
     align-items: center;
 }
 
-.nav-icon .cart-badge {
+.cart-toggle .cart-badge {
     position: absolute;
-    top: -8px;
+    top: -6px;
     right: -8px;
     background: #DC2626;
     color: #FFFFFF;

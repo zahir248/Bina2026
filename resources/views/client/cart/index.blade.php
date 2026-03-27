@@ -690,6 +690,15 @@
 }
 
 @media (max-width: 1024px) {
+    .cart-page-content-wrapper {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    .cart-page-content {
+        max-width: 940px;
+    }
+
     .cart-page-title {
         font-size: 2rem;
     }
@@ -697,11 +706,28 @@
     .cart-items-card {
         padding: 1.5rem;
     }
+
+    /* Allow full ticket name to wrap; base .cart-item-name is single-line ellipsis */
+    .cart-item-name {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        word-break: break-word;
+    }
 }
 
 @media (max-width: 768px) {
     .cart-page-container {
         padding: 2rem 0;
+    }
+
+    .cart-page-content-wrapper {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .cart-page-content {
+        max-width: 100%;
     }
     
     .cart-page-header {
@@ -715,6 +741,20 @@
     
     .cart-items-card {
         padding: 1.25rem;
+    }
+
+    .cart-item {
+        grid-template-columns: minmax(0, 1fr) auto auto auto;
+        gap: 0.625rem;
+    }
+
+    .cart-item-qty {
+        min-width: 2rem;
+        margin-right: 0.25rem;
+    }
+
+    .cart-item-price {
+        font-size: 0.875rem;
     }
     
     .cart-promo-total-content {

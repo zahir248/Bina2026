@@ -63,24 +63,26 @@
                                 </thead>
                                 <tbody>
                                     @foreach($orders as $order)
-                                        <tr>
-                                            <td>{{ $orders->firstItem() + $loop->index }}</td>
-                                            <td class="purchase-ref">{{ $order->stripe_payment_intent_id ?? '-' }}</td>
-                                            <td>{{ $order->created_at->format('M d, Y H:i') }}</td>
-                                            <td>{{ number_format($order->total_amount_cents / 100, 2) }}</td>
-                                            <td>
-                                                @if($activeTab === 'refund' && $order->refund_status)
-                                                    <span class="purchase-status-badge {{ $order->refund_status === 'pending' ? 'purchase-status-pending' : ($order->refund_status === 'approved' ? 'purchase-status-paid' : ($order->refund_status === 'rejected' ? 'purchase-status-rejected' : 'purchase-status-refunded')) }}">
-                                                        {{ $order->refund_status === 'pending' ? 'Reviewing' : ucfirst($order->refund_status) }}
-                                                    </span>
-                                                @else
-                                                    <span class="purchase-status-badge purchase-status-{{ $order->status }}">
-                                                        {{ ucfirst($order->status) }}
-                                                    </span>
-                                                @endif
+                                        <tr class="purchase-history-row">
+                                            <td data-label="No."><span class="purchase-history-cell-value">{{ $orders->firstItem() + $loop->index }}</span></td>
+                                            <td data-label="Reference"><span class="purchase-history-cell-value purchase-ref">{{ $order->stripe_payment_intent_id ?? '-' }}</span></td>
+                                            <td data-label="Date"><span class="purchase-history-cell-value">{{ $order->created_at->format('M d, Y H:i') }}</span></td>
+                                            <td data-label="Total (RM)"><span class="purchase-history-cell-value">{{ number_format($order->total_amount_cents / 100, 2) }}</span></td>
+                                            <td data-label="Status">
+                                                <span class="purchase-history-cell-value">
+                                                    @if($activeTab === 'refund' && $order->refund_status)
+                                                        <span class="purchase-status-badge {{ $order->refund_status === 'pending' ? 'purchase-status-pending' : ($order->refund_status === 'approved' ? 'purchase-status-paid' : ($order->refund_status === 'rejected' ? 'purchase-status-rejected' : 'purchase-status-refunded')) }}">
+                                                            {{ $order->refund_status === 'pending' ? 'Reviewing' : ucfirst($order->refund_status) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="purchase-status-badge purchase-status-{{ $order->status }}">
+                                                            {{ ucfirst($order->status) }}
+                                                        </span>
+                                                    @endif
+                                                </span>
                                             </td>
-                                            <td>{{ $order->payment_method ? ucfirst($order->payment_method) : '-' }}</td>
-                                            <td>
+                                            <td data-label="Payment"><span class="purchase-history-cell-value">{{ $order->payment_method ? ucfirst($order->payment_method) : '-' }}</span></td>
+                                            <td class="purchase-history-card-actions" data-label="Actions">
                                                 <div class="purchase-history-actions-cell">
                                                     <button type="button" class="purchase-history-action-link purchase-history-btn-view" title="View order" aria-label="View order"
                                                         data-reference="{{ $order->stripe_payment_intent_id ?? $order->id }}"
@@ -578,6 +580,10 @@
 .purchase-history-pagination nav {
     display: flex;
     gap: 0.25rem;
+}
+
+.purchase-history-cell-value {
+    display: inline-block;
 }
 
 .purchase-history-actions-cell {
@@ -1244,10 +1250,108 @@
 }
 
 @media (max-width: 768px) {
+    .profile-page-content-wrapper.profile-purchase-history-wrapper {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .profile-section-card {
+        padding: 1rem;
+    }
+
+    .purchase-history-table-wrap {
+        overflow-x: visible;
+    }
+
+    .purchase-history-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .purchase-history-table,
+    .purchase-history-table tbody,
+    .purchase-history-table tr,
+    .purchase-history-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .purchase-history-table tbody tr.purchase-history-row {
+        border: 1px solid #E5E7EB;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .purchase-history-table tbody tr.purchase-history-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .purchase-history-table tbody tr:hover {
+        background: #fff;
+    }
+
     .purchase-history-table th,
     .purchase-history-table td {
-        padding: 0.5rem 0.75rem;
+        padding: 0.5rem 0;
         font-size: 0.875rem;
+        border-bottom: none;
+        text-align: left;
+    }
+
+    .purchase-history-table tbody td {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.5rem 1rem;
+    }
+
+    .purchase-history-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #374151;
+        flex: 0 0 auto;
+        max-width: 42%;
+    }
+
+    .purchase-history-table tbody td .purchase-history-cell-value {
+        flex: 1 1 auto;
+        text-align: right;
+        min-width: 0;
+    }
+
+    .purchase-history-table tbody td[data-label="Status"] .purchase-history-cell-value {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .purchase-history-table tbody td.purchase-history-card-actions {
+        flex-direction: column;
+        align-items: stretch;
+        padding-top: 0.75rem;
+        margin-top: 0.25rem;
+        border-top: 1px solid #E5E7EB;
+    }
+
+    .purchase-history-table tbody td.purchase-history-card-actions::before {
+        max-width: none;
+        width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    .purchase-history-table tbody td.purchase-history-card-actions .purchase-history-actions-cell {
+        justify-content: flex-start;
+        width: 100%;
     }
 }
 </style>
