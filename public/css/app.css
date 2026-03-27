@@ -1224,6 +1224,9 @@ body {
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
     z-index: 1;
     pointer-events: none;
+    width: 100%;
+    text-align: center;
+    padding-inline: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -5587,10 +5590,13 @@ body {
         display: flex;
     }
 
-    /* Hide top-left brand logo on small screens;
-       logo is shown inside the slide-down menu instead */
+    /* Hide mobile header logo by default (show only when menu is open) */
     .nav-brand {
         display: none;
+    }
+
+    .navbar.navbar--menu-open .nav-brand {
+        display: flex;
     }
 
     .nav-menu {
@@ -5633,15 +5639,9 @@ body {
         width: 100%;
     }
 
+    /* Hide duplicate logo from the dropdown menu on mobile */
     .nav-menu-logo {
-        display: block;
-        width: 100%;
-        margin-bottom: 0.75rem;
-    }
-
-    .nav-menu-logo-img {
-        height: 28px;
-        margin-left: 2px;
+        display: none;
     }
 
     .nav-menu li a:not(.cart-toggle):not(.auth-btn),

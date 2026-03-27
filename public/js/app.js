@@ -257,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Dropdown menu toggle on click + mobile navbar toggle
 document.addEventListener('DOMContentLoaded', function() {
     const dropdowns = document.querySelectorAll('.dropdown');
+    const navbar = document.querySelector('.navbar');
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
     
@@ -297,6 +298,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const isOpen = navMenu.classList.toggle('is-open');
             navToggle.classList.toggle('is-open', isOpen);
             navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (navbar) {
+                navbar.classList.toggle('navbar--menu-open', isOpen);
+            }
         });
 
         // Close menu when clicking a real nav link or a dropdown submenu item (not the dropdown trigger).
@@ -308,6 +312,9 @@ document.addEventListener('DOMContentLoaded', function() {
             navMenu.classList.remove('is-open');
             navToggle.classList.remove('is-open');
             navToggle.setAttribute('aria-expanded', 'false');
+            if (navbar) {
+                navbar.classList.remove('navbar--menu-open');
+            }
         });
     }
 });
