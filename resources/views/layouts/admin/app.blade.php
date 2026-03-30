@@ -556,6 +556,12 @@
                         <span>Reports</span>
                     </a>
                 </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.newsletter') }}" class="nav-link {{ request()->routeIs('admin.newsletter*') ? 'active' : '' }}">
+                        <i class="bi bi-envelope-paper-heart"></i>
+                        <span>Newsletter</span>
+                    </a>
+                </div>
                 <div class="nav-item dropdown {{ request()->routeIs('admin.logs*') ? 'show' : '' }}">
                     <a href="#" class="nav-link dropdown-toggle {{ request()->routeIs('admin.logs*') ? 'active' : '' }}">
                         <i class="bi bi-journal-text"></i>

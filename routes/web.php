@@ -1,40 +1,47 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Admin\AffiliateCodeController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EventCategoryController;
+use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\EventParticipantsController;
+use App\Http\Controllers\Admin\EventPersonnelController;
+use App\Http\Controllers\Admin\LogController;
+use App\Http\Controllers\Admin\NewsletterController as AdminNewsletterController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\PromoCodeController;
+use App\Http\Controllers\Admin\ReportsController;
+use App\Http\Controllers\Admin\ScheduleController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\Admin\TicketScannerController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Client\AuthController;
 use App\Http\Controllers\Client\CartController;
-use App\Http\Controllers\Client\ProfileController;
 use App\Http\Controllers\Client\CheckoutPaymentController;
 use App\Http\Controllers\Client\EventCategoryController as ClientEventCategoryController;
 use App\Http\Controllers\Client\EventController as ClientEventController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\EventCategoryController;
-use App\Http\Controllers\Admin\EventController;
-use App\Http\Controllers\Admin\ScheduleController;
-use App\Http\Controllers\Admin\EventPersonnelController;
-use App\Http\Controllers\Admin\TicketController;
-use App\Http\Controllers\Admin\PromoCodeController;
-use App\Http\Controllers\Admin\AffiliateCodeController;
-use App\Http\Controllers\Admin\LogController;
-use App\Http\Controllers\Admin\OrderController;
-use App\Http\Controllers\Admin\ReportsController;
-use App\Http\Controllers\Admin\EventParticipantsController;
-use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\TicketScannerController;
-use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
-use App\Models\Setting;
+use App\Http\Controllers\Client\NewsletterController as ClientNewsletterController;
+use App\Http\Controllers\Client\ProfileController;
 use App\Models\Event;
+use App\Models\Setting;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 // Serve storage files via Laravel (works on cPanel where public/storage symlink may not work)
 Route::get('/storage/serve/{path}', function (string $path) {
     $path = str_replace(['../', '..\\'], '', $path);
-    if (!Storage::disk('public')->exists($path)) {
+    if (! Storage::disk('public')->exists($path)) {
         abort(404);
     }
+
     return Storage::disk('public')->response($path);
 })->where('path', '.*')->name('storage.serve');
+
+Route::post('/newsletter/subscribe', [ClientNewsletterController::class, 'subscribe'])
+    ->middleware('throttle:20,1')
+    ->name('newsletter.subscribe');
 
 Route::get('/', function () {
     $countdownEnabled = Setting::get(SettingsController::KEY_COUNTDOWN_ENABLED, '1') === '1';
@@ -145,7 +152,7 @@ Route::middleware(['prevent_guest_admin_when_not_maintenance', 'auth'])->prefix(
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
-    
+
     // Events routes
     Route::prefix('events')->name('events.')->group(function () {
         // Categories
@@ -153,38 +160,38 @@ Route::middleware(['prevent_guest_admin_when_not_maintenance', 'auth'])->prefix(
         Route::post('/categories', [EventCategoryController::class, 'store'])->name('categories.store');
         Route::put('/categories/{id}', [EventCategoryController::class, 'update'])->name('categories.update');
         Route::delete('/categories/{id}', [EventCategoryController::class, 'destroy'])->name('categories.destroy');
-        
+
         // Events
         Route::get('/', [EventController::class, 'index'])->name('index');
         Route::post('/', [EventController::class, 'store'])->name('store');
         Route::post('/upload-content-image', [EventController::class, 'uploadContentImage'])->name('upload-content-image');
         Route::put('/{id}', [EventController::class, 'update'])->name('update');
         Route::delete('/{id}', [EventController::class, 'destroy'])->name('destroy');
-        
+
         // Schedules
         Route::get('/schedules', [ScheduleController::class, 'index'])->name('schedules');
         Route::get('/schedules/event/{eventId}', [ScheduleController::class, 'getSchedules'])->name('schedules.get');
         Route::post('/schedules/event/{eventId}', [ScheduleController::class, 'saveSchedules'])->name('schedules.save');
-        
+
         // Event Personnel
         Route::get('/personnel', [EventPersonnelController::class, 'index'])->name('personnel');
         Route::post('/personnel', [EventPersonnelController::class, 'store'])->name('personnel.store');
         Route::put('/personnel/{id}', [EventPersonnelController::class, 'update'])->name('personnel.update');
         Route::delete('/personnel/{id}', [EventPersonnelController::class, 'destroy'])->name('personnel.destroy');
-        
+
         // Tickets
         Route::get('/tickets', [TicketController::class, 'index'])->name('tickets');
         Route::post('/tickets', [TicketController::class, 'store'])->name('tickets.store');
         Route::put('/tickets/{id}', [TicketController::class, 'update'])->name('tickets.update');
         Route::delete('/tickets/{id}', [TicketController::class, 'destroy'])->name('tickets.destroy');
     });
-    
+
     // Promo Codes
     Route::get('/promo-codes', [PromoCodeController::class, 'index'])->name('promo-codes');
     Route::post('/promo-codes', [PromoCodeController::class, 'store'])->name('promo-codes.store');
     Route::put('/promo-codes/{id}', [PromoCodeController::class, 'update'])->name('promo-codes.update');
     Route::delete('/promo-codes/{id}', [PromoCodeController::class, 'destroy'])->name('promo-codes.destroy');
-    
+
     // Affiliate Codes
     Route::get('/affiliate-codes', [AffiliateCodeController::class, 'index'])->name('affiliate-codes');
     Route::post('/affiliate-codes', [AffiliateCodeController::class, 'store'])->name('affiliate-codes.store');
@@ -203,6 +210,11 @@ Route::middleware(['prevent_guest_admin_when_not_maintenance', 'auth'])->prefix(
     // Reports
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
     Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
+
+    // Newsletter
+    Route::get('/newsletter', [AdminNewsletterController::class, 'index'])->name('newsletter');
+    Route::post('/newsletter/send', [AdminNewsletterController::class, 'send'])->name('newsletter.send');
+    Route::delete('/newsletter/subscribers/{id}', [AdminNewsletterController::class, 'destroy'])->name('newsletter.subscribers.destroy');
 
     // Logs
     Route::prefix('logs')->name('logs.')->group(function () {

@@ -190,10 +190,10 @@
                 <div class="footer-section footer-right">
                     <div class="footer-newsletter">
                         <h4 class="footer-title">SUBSCRIBE OUR NEWSLETTER</h4>
-                        <form class="newsletter-form" method="POST" action="#">
+                        <form class="newsletter-form" method="POST" action="{{ route('newsletter.subscribe') }}">
                             @csrf
                             <div class="newsletter-input-group">
-                                <input type="email" name="email" class="newsletter-input" placeholder="Your Email Address" required>
+                                <input type="email" name="email" value="{{ old('email') }}" class="newsletter-input @error('email') is-invalid @enderror" placeholder="Your Email Address" required>
                                 <button type="submit" class="newsletter-btn">SIGN UP</button>
                             </div>
                         </form>
