@@ -501,17 +501,60 @@ document.addEventListener('DOMContentLoaded', function() {
         ? '{{ route("api.events") }}?category_id=' + initialCategoryId
         : '{{ route("api.events") }}';
     
+    function appendModularAsiaExhibitionCard(container) {
+        const modularUrl = '{{ route("modular-asia-exhibition") }}';
+        const eventLink = document.createElement('a');
+        eventLink.href = modularUrl;
+        eventLink.className = 'event-item-link';
+        const img = 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&h=400&fit=crop&q=85';
+        eventLink.innerHTML = `
+            <div class="event-item">
+                <div class="event-item-image">
+                    <img src="${img}" alt="Modular Asia Exhibition" class="event-image">
+                    <div class="event-image-overlay"></div>
+                </div>
+                <div class="event-item-content">
+                    <span class="event-category-badge">Modular Asia</span>
+                    <h3 style="word-wrap: break-word; overflow-wrap: break-word; width: 100%;">Modular Asia Exhibition</h3>
+                    <p class="event-meta">
+                        <span class="event-meta-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        November 10 – 12, 2026
+                        <span class="event-meta-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        MITEC, Kuala Lumpur
+                    </p>
+                    <p class="event-description" style="text-align: justify;">Malaysia’s flagship platform for modular construction, IBS, and the future of built environments—held during International Construction Week (ICW).</p>
+                    <div class="event-item-footer">
+                        <div class="event-price-info">
+                            <span class="event-price-label">Programme</span>
+                            <span class="event-price">Roadmap · Buildxpo · Visits</span>
+                        </div>
+                        <span class="btn btn-primary btn-small">Learn more</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(eventLink);
+    }
+
     fetch(eventsUrl)
         .then(response => response.json())
         .then(events => {
             // Clear loading message
             eventsList.innerHTML = '';
-            
+
             if (events.length === 0) {
-                eventsList.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>No events available</p></div>';
+                appendModularAsiaExhibitionCard(eventsList);
                 return;
             }
-            
+
             // Render events
             events.forEach(event => {
                 const eventLink = document.createElement('a');
@@ -560,10 +603,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 eventsList.appendChild(eventLink);
             });
+
+            appendModularAsiaExhibitionCard(eventsList);
         })
         .catch(error => {
             console.error('Error fetching events:', error);
-            eventsList.innerHTML = '<div style="text-align: center; padding: 2rem;"><p>Error loading events</p></div>';
+            eventsList.innerHTML = '';
+            const errWrap = document.createElement('div');
+            errWrap.style.cssText = 'text-align: center; padding: 1.5rem 1rem 0;';
+            errWrap.innerHTML = '<p style="color: var(--text-light, #6B7280); margin: 0;">Other events could not be loaded. Please refresh or try again later.</p>';
+            eventsList.appendChild(errWrap);
+            appendModularAsiaExhibitionCard(eventsList);
         });
     
     // Calendar state

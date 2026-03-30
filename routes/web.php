@@ -88,6 +88,12 @@ Route::get('/nextgen-bina', function () {
     return view('client.nextgen-bina');
 })->name('nextgen-bina');
 
+Route::permanentRedirect('/modular-asia-exhibition-2026', '/modular-asia-exhibition');
+
+Route::get('/modular-asia-exhibition', function () {
+    return view('client.modular-asia-exhibition');
+})->name('modular-asia-exhibition');
+
 Route::get('/event/{slug}', [ClientEventController::class, 'show'])->name('events.show');
 
 // Cart Routes (specific paths before /cart/{id} to avoid 404)
