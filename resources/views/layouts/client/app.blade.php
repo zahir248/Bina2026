@@ -75,7 +75,7 @@
                             $line1 = implode(' ', array_slice($words, 0, $mid));
                             $line2 = $mid < count($words) ? implode(' ', array_slice($words, $mid)) : '';
                         @endphp
-                        <li><a class="nav-category-link {{ $currentEventSlug && $category->eventSlug === $currentEventSlug ? 'active' : '' }}" href="{{ $category->eventSlug ? route('events.show', $category->eventSlug) : route('home') }}">{{ $line1 }}@if($line2)<br>{{ $line2 }}@endif</a></li>
+                        <li><a class="nav-category-link {{ $currentEventSlug && $category->eventSlug === $currentEventSlug ? 'active' : '' }}" href="{{ $category->eventSlug ? route('events.show', $category->eventSlug) : route('home') }}">{{ $line1 }}@if($line2) <br>{{ $line2 }}@endif</a></li>
                         @endforeach
                     </ul>
                 </li>
